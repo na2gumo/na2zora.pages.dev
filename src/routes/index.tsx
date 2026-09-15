@@ -11,7 +11,7 @@ export default component$(() => {
 
   return (
     <div class="portfolio-home">
-      {/* ヒーローセクション（中央揃えアイコン + なつぐも + 自己紹介） */}
+      {/* ヒーローセクション */}
       <section class="hero-section">
         <div class="avatar-wrapper">
           <img
@@ -24,10 +24,9 @@ export default component$(() => {
           />
         </div>
         <h1 class="hero-name">なつぐも</h1>
-        <p class="hero-handle">@na2gumo / na2zora</p>
+        <p class="hero-handle">@na2gumo</p>
         <p class="hero-tagline">
-          Webフロントエンド、新しい技術スタック、そして #VRChat が好きな開発者です。
-          思考の断片や技術的な学びをここに記録しています。
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.
         </p>
         <div class="social-links">
           <a
@@ -48,34 +47,30 @@ export default component$(() => {
 
       {/* About セクション */}
       <section class="section">
-        <h2>About Me</h2>
+        <h2>About</h2>
         <p>
-          こんにちは、なつぐもです。シンプルで軽量、表示速度に妥協しないWebサイトが好きです。
-          このサイトは Qwik City と Cloudflare Pages をベースに、SCSS、ページ単位のサブセットフォント（BIZ UDゴシック / Geist Mono）など、
-          こだわりを詰め込んで制作しています。
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
         </p>
       </section>
 
       {/* Skills / Interests セクション */}
       <section class="section">
-        <h2>Interests & Tech Stack</h2>
+        <h2>Skills & Interests</h2>
         <div class="skills-grid">
-          <span class="skill-tag">TypeScript</span>
-          <span class="skill-tag">Qwik City</span>
-          <span class="skill-tag">Cloudflare Pages</span>
-          <span class="skill-tag">SCSS</span>
-          <span class="skill-tag">MDX</span>
-          <span class="skill-tag">pnpm</span>
-          <span class="skill-tag">VRChat</span>
+          <span class="skill-tag">Skill 1</span>
+          <span class="skill-tag">Skill 2</span>
+          <span class="skill-tag">Skill 3</span>
+          <span class="skill-tag">Skill 4</span>
+          <span class="skill-tag">Skill 5</span>
         </div>
       </section>
 
-      {/* Latest Blog Posts セクション */}
+      {/* Recent Posts セクション */}
       <section class="section">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "1rem" }}>
           <h2 style={{ margin: 0, border: "none", padding: 0 }}>Recent Posts</h2>
           <Link href="/blog/" style={{ fontSize: "0.9rem" }}>
-            すべての記事を見る →
+            View all →
           </Link>
         </div>
 
@@ -108,11 +103,11 @@ export default component$(() => {
 });
 
 export const head: DocumentHead = {
-  title: "なつぐも (na2gumo) - Portfolio & Blog",
+  title: "なつぐも (na2gumo)",
   meta: [
     {
       name: "description",
-      content: "なつぐも (na2gumo) の個人ポートフォリオ＆ブログサイト",
+      content: "Personal portfolio and blog",
     },
   ],
 };

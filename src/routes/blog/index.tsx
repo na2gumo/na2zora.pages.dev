@@ -13,7 +13,7 @@ export default component$(() => {
     <div class="blog-index">
       <h1>Blog</h1>
       <p style={{ color: "var(--color-text-muted)", marginBottom: "2rem" }}>
-        日々の技術的なメモや雑感を綴る場所です。
+        Placeholder blog subtitle or description.
       </p>
 
       <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
@@ -42,11 +42,11 @@ export default component$(() => {
 });
 
 export const head: DocumentHead = {
-  title: "Blog - na2zora",
+  title: "Blog",
   meta: [
     {
       name: "description",
-      content: "na2zoraの技術ブログ記事一覧",
+      content: "Blog posts archive",
     },
   ],
 };

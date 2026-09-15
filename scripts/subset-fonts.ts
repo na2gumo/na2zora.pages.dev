@@ -12,9 +12,9 @@ const rootDir = path.resolve(__dirname, "..");
 const BASE_CHARS =
   " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
 
-// サイト共通要素（ヘッダー・フッター・ナビゲーション・トップページ等）の文字
+// サイト共通要素（ヘッダー・フッター・ナビゲーション・固定テキスト等）の文字
 const COMMON_UI_TEXT =
-  "なつぐもna2zoraBlogRSSAllrightsreservedBuiltwithQwikCloudflarePagesAboutMeRecentUpdates技術ブログ記事一覧日々の技術的なメモや雑感を綴る場所です。こんにちは、なつぐもです。シンプルで軽量、表示速度に妥協しないWebサイトが好きです。このサイトはQwikCityとCloudflarePagesをベースに、SCSS、ページ単位のサブセットフォント（BIZUDゴシック/GeistMono）など、こだわりを詰め込んで制作しています。Webフロントエンド、新しい技術スタック、そして#VRChatが好きな開発者です。思考の断片や技術的な学びをここに記録しています。InterestsTechStackTypeScriptすべての記事を見る←→Twitterで共有";
+  "なつぐもna2zoraBlogRSSAllrightsreservedBuiltwithQwikCloudflarePagesAboutRecentPostsSkillsInterestsGitHubViewall←→XTwitterで共有記事一覧に戻るすべての記事を見る";
 
 function getUniqueChars(text: string): string {
   const set = new Set(Array.from(text));
