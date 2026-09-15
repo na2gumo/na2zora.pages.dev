@@ -78,12 +78,7 @@ export default component$(() => {
           {latestPosts.value.map((post) => (
             <article
               key={post.slug}
-              style={{
-                padding: "0.85rem 1rem",
-                borderRadius: "8px",
-                border: "1px solid var(--color-border)",
-                backgroundColor: "var(--color-surface)",
-              }}
+              class="post-card"
             >
               <div style={{ fontSize: "0.8rem", color: "var(--color-text-muted)" }}>
                 {post.date}
