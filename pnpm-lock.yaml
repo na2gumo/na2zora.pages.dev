@@ -59,6 +59,9 @@ importers:
       sass:
         specifier: ^1.104.1
         version: 1.104.1
+      sharp:
+        specifier: ^0.35.4
+        version: 0.35.4(@types/node@20.19.0)
       shiki:
         specifier: ^4.4.3
         version: 4.4.3

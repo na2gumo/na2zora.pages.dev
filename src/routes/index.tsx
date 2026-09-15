@@ -14,14 +14,17 @@ export default component$(() => {
       {/* ヒーローセクション */}
       <section class="hero-section">
         <div class="avatar-wrapper">
-          <img
-            src="https://avatars.githubusercontent.com/u/266047745?v=4"
-            alt="なつぐも (na2gumo)"
-            width="128"
-            height="128"
-            class="avatar"
-            loading="eager"
-          />
+          <picture>
+            <source srcset="/avatar.avif" type="image/avif" />
+            <img
+              src="https://avatars.githubusercontent.com/u/266047745?v=4"
+              alt="なつぐも (na2gumo)"
+              width="128"
+              height="128"
+              class="avatar"
+              loading="eager"
+            />
+          </picture>
         </div>
         <h1 class="hero-name">なつぐも</h1>
         <p class="hero-handle">@na2gumo</p>
