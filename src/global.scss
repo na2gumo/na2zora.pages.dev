@@ -13,17 +13,26 @@
   --color-surface: #ffffff;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg: #0f1117;
-    --color-text: #e2e8f0;
-    --color-text-muted: #94a3b8;
-    --color-primary: #38bdf8;
-    --color-primary-glow: rgba(56, 189, 248, 0.25);
-    --color-border: #1e293b;
-    --color-code-bg: #0b0d13;
-    --color-surface: #171b26;
-  }
+[data-theme="dark"] {
+  --color-bg: #0f1117;
+  --color-text: #e2e8f0;
+  --color-text-muted: #94a3b8;
+  --color-primary: #38bdf8;
+  --color-primary-glow: rgba(56, 189, 248, 0.25);
+  --color-border: #1e293b;
+  --color-code-bg: #0b0d13;
+  --color-surface: #171b26;
+}
+
+[data-theme="light"] {
+  --color-bg: #fafafa;
+  --color-text: #1a1a1a;
+  --color-text-muted: #666666;
+  --color-primary: #005bb5;
+  --color-primary-glow: rgba(0, 91, 181, 0.25);
+  --color-border: #eaeaea;
+  --color-code-bg: #1e1e1e;
+  --color-surface: #ffffff;
 }
 
 body {
@@ -67,8 +76,13 @@ pre {
 
 .site-header {
   border-bottom: 1px solid var(--color-border);
-  padding-bottom: 1.5rem;
+  padding-bottom: 1.25rem;
   margin-bottom: 2.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
   animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 
   nav {
@@ -96,6 +110,46 @@ pre {
       &:hover::after,
       &.active::after {
         width: 100%;
+      }
+    }
+  }
+
+  .theme-toggle-group {
+    display: flex;
+    align-items: center;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 9999px;
+    padding: 2px;
+    gap: 2px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+    .theme-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      border-radius: 9999px;
+      padding: 6px;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      line-height: 1;
+
+      &:hover {
+        color: var(--color-text);
+        background-color: rgba(125, 125, 125, 0.1);
+      }
+
+      &.active {
+        color: var(--color-primary);
+        background-color: var(--color-bg);
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      svg {
+        display: block;
       }
     }
   }

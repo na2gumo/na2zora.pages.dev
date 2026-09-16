@@ -16,6 +16,22 @@ export const RouterHead = component$(() => {
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="icon" type="image/avif" href="/favicon.avif" />
       <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+      {/* 画面のちらつき(FOUC)防止：最優先インラインテーマ検出・即時反映スクリプト */}
+      <script
+        dangerouslySetInnerHTML={`
+          (function() {
+            try {
+              var theme = localStorage.getItem('theme');
+              var supportDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+              if (theme === 'dark' || (!theme && supportDark)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+              } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+              }
+            } catch (e) {}
+          })();
+        `}
+      />
       {/* ページ専用サブセットフォントの読み込み */}
       {(() => {
         const pathSegments = loc.url.pathname.replace(/^\/|\/$/g, "").split("/");
