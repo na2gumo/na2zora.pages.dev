@@ -327,6 +327,64 @@ html[data-theme="light"] .shiki span {
       box-shadow: 0 8px 24px var(--color-primary-glow);
     }
   }
+
+  .activity-card {
+    padding: 1rem 1.25rem;
+    border-radius: 10px;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-surface);
+    transition: all 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+
+    &:hover {
+      border-color: var(--color-primary);
+      transform: translateY(-2px);
+    }
+
+    .activity-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+    }
+
+    .activity-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.15rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      background-color: var(--color-primary-glow);
+      color: var(--color-primary);
+    }
+
+    .activity-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin: 0;
+
+      a {
+        text-decoration: none;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+
+    .activity-detail {
+      margin: 0;
+      font-size: 0.85rem;
+      color: var(--color-text-muted);
+      overflow-wrap: anywhere;
+    }
+  }
 }
 
 /* アニメーション定義 */

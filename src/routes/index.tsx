@@ -1,13 +1,36 @@
 import { component$ } from "@builder.io/qwik";
 import { Link, type DocumentHead, routeLoader$ } from "@builder.io/qwik-city";
 import { getAllPosts, type BlogPost } from "../lib/posts";
+import { formatGitHubEvent, type GitHubActivityItem } from "../lib/github";
 
 export const useLatestPosts = routeLoader$<BlogPost[]>(() => {
   return getAllPosts().slice(0, 3);
 });
 
+export const useGitHubActivities = routeLoader$<GitHubActivityItem[]>(async () => {
+  try {
+    const res = await fetch("https://api.github.com/users/na2gumo/events/public?per_page=12", {
+      headers: {
+        Accept: "application/vnd.github.v3+json",
+        "User-Agent": "na2zora-portfolio",
+      },
+    });
+    if (!res.ok) {
+      return [];
+    }
+    const events = (await res.json()) as any[];
+    return events
+      .map(formatGitHubEvent)
+      .filter((item): item is GitHubActivityItem => item !== null)
+      .slice(0, 6);
+  } catch {
+    return [];
+  }
+});
+
 export default component$(() => {
   const latestPosts = useLatestPosts();
+  const githubActivities = useGitHubActivities();
 
   return (
     <div class="portfolio-home">
@@ -80,6 +103,51 @@ export default component$(() => {
             </article>
           ))}
         </div>
+      </section>
+
+      {/* GitHub Activity セクション */}
+      <section class="section">
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "1rem" }}>
+          <h2 style={{ margin: 0, border: "none", padding: 0 }}>Recent GitHub Activity</h2>
+          <a
+            href="https://github.com/na2gumo"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ fontSize: "0.9rem" }}
+          >
+            GitHub profile →
+          </a>
+        </div>
+
+        {githubActivities.value.length === 0 ? (
+          <p style={{ color: "var(--color-text-muted)", fontSize: "0.9rem" }}>
+            No recent activity found or unable to fetch GitHub events.
+          </p>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
+            {githubActivities.value.map((activity) => (
+              <article key={activity.id} class="activity-card">
+                <div class="activity-header">
+                  <span class="activity-badge">{activity.type}</span>
+                  <time style={{ color: "var(--color-text-muted)" }}>{activity.date}</time>
+                </div>
+                <div class="activity-title">
+                  <span style={{ marginRight: "0.4rem" }}>{activity.actionText}</span>
+                  <a
+                    href={activity.targetUrl || activity.repoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {activity.repoName}
+                  </a>
+                </div>
+                {activity.detail && (
+                  <p class="activity-detail">{activity.detail}</p>
+                )}
+              </article>
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );
