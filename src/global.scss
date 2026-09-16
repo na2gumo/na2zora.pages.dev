@@ -225,7 +225,7 @@ html[data-theme="light"] .shiki span {
         );
         opacity: 0.8;
         filter: blur(14px);
-        animation: rotateGlow 7s linear infinite, pulseScale 3.5s ease-in-out infinite alternate;
+        animation: rotateGlow 7s linear infinite;
         pointer-events: none;
       }
 
@@ -359,16 +359,6 @@ html[data-theme="light"] .shiki span {
   }
 }
 
-@keyframes pulseScale {
-  0% {
-    transform: scale(0.98);
-    opacity: 0.7;
-  }
-  100% {
-    transform: scale(1.08);
-    opacity: 0.95;
-  }
-}
 
 /* ブログ記事（MDX）のスタイリング */
 .blog-content {
