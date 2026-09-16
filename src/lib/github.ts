@@ -257,3 +257,74 @@ export function aggregateGitHubEvents(
 
   return aggregated;
 }
+
+/**
+ * サーバーサイドで GitHub アクティビティを取得し、
+ * Cloudflare KV（存在する場合）に一定期間キャッシュする。
+ *
+ * @param env Cloudflare Pages の環境変数（KV バインディングを含む）
+ * @param cacheTtlSeconds キャッシュ有効期間（秒、デフォルト 600秒 = 10分）
+ */
+export async function fetchGitHubActivitiesWithCache(
+  env?: Record<string, any>,
+  cacheTtlSeconds: number = 600
+): Promise<GitHubActivityItem[]> {
+  const kv = env?.KV_CACHE || env?.GITHUB_CACHE || env?.KV;
+  const cacheKey = "github_activities_v1";
+
+  // 1. KV からキャッシュ取得を試みる
+  if (kv && typeof kv.get === "function") {
+    try {
+      const cached = await kv.get(cacheKey, "json");
+      if (cached && Array.isArray(cached) && cached.length > 0) {
+        return cached;
+      }
+    } catch {
+      // KV 取得失敗時はフェッチへフォールバック
+    }
+  }
+
+  // 2. GitHub API から新規取得
+  try {
+    const headers = {
+      Accept: "application/vnd.github.v3+json",
+      "User-Agent": "na2zora-portfolio",
+    };
+
+    const [eventsRes, commitsRes] = await Promise.allSettled([
+      fetch("https://api.github.com/users/na2gumo/events/public?per_page=30", { headers }),
+      fetch("https://api.github.com/repos/na2gumo/na2zora.pages.dev/commits?per_page=20", { headers }),
+    ]);
+
+    let events: any[] = [];
+    if (eventsRes.status === "fulfilled" && eventsRes.value.ok) {
+      events = await eventsRes.value.json();
+    }
+
+    const recentCommitsByRepo: Record<string, any[]> = {};
+    if (commitsRes.status === "fulfilled" && commitsRes.value.ok) {
+      recentCommitsByRepo["na2gumo/na2zora.pages.dev"] = await commitsRes.value.json();
+    }
+
+    if (events.length === 0) {
+      return [];
+    }
+
+    const aggregated = aggregateGitHubEvents(events, recentCommitsByRepo).slice(0, 5);
+
+    // 3. KV が利用可能なら結果をキャッシュ保存（expirationTtl 指定）
+    if (kv && typeof kv.put === "function" && aggregated.length > 0) {
+      try {
+        await kv.put(cacheKey, JSON.stringify(aggregated), {
+          expirationTtl: Math.max(cacheTtlSeconds, 60), // Cloudflare KV requires >= 60 seconds
+        });
+      } catch {
+        // キャッシュ書き込み失敗は無視してデータを返す
+      }
+    }
+
+    return aggregated;
+  } catch {
+    return [];
+  }
+}

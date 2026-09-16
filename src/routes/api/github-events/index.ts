@@ -1,24 +1,16 @@
 import type { RequestHandler } from "@builder.io/qwik-city";
+import type { PlatformCloudflarePages } from "@builder.io/qwik-city/middleware/cloudflare-pages";
+import { fetchGitHubActivitiesWithCache } from "../../../lib/github";
 
-export const onGet: RequestHandler = async ({ send, headers }) => {
+export const onGet: RequestHandler = async ({ send, headers, platform }) => {
   try {
-    const res = await fetch("https://api.github.com/users/na2gumo/events/public?per_page=15", {
-      headers: {
-        Accept: "application/vnd.github.v3+json",
-        "User-Agent": "na2zora-portfolio",
-      },
-    });
-
-    if (!res.ok) {
-      send(res.status, JSON.stringify({ error: `GitHub API error: ${res.statusText}` }));
-      return;
-    }
-
-    const events = await res.json();
+    const env = (platform as PlatformCloudflarePages | undefined)?.env;
+    // 10分（600秒）キャッシュ
+    const activities = await fetchGitHubActivitiesWithCache(env, 600);
 
     headers.set("Content-Type", "application/json; charset=utf-8");
     headers.set("Cache-Control", "public, max-age=60, s-maxage=300");
-    send(200, JSON.stringify(events));
+    send(200, JSON.stringify(activities));
   } catch (err: any) {
     send(500, JSON.stringify({ error: err?.message || "Internal server error" }));
   }

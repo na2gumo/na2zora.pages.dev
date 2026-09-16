@@ -1,43 +1,18 @@
 import { component$ } from "@builder.io/qwik";
 import { Link, type DocumentHead, routeLoader$ } from "@builder.io/qwik-city";
+import type { PlatformCloudflarePages } from "@builder.io/qwik-city/middleware/cloudflare-pages";
 import { getAllPosts, type BlogPost } from "../lib/posts";
-import { aggregateGitHubEvents, type GitHubActivityItem } from "../lib/github";
+import { fetchGitHubActivitiesWithCache, type GitHubActivityItem } from "../lib/github";
 
 export const useLatestPosts = routeLoader$<BlogPost[]>(() => {
   return getAllPosts().slice(0, 3);
 });
 
-export const useGitHubActivities = routeLoader$<GitHubActivityItem[]>(async () => {
-  try {
-    const headers = {
-      Accept: "application/vnd.github.v3+json",
-      "User-Agent": "na2zora-portfolio",
-    };
-
-    const [eventsRes, commitsRes] = await Promise.allSettled([
-      fetch("https://api.github.com/users/na2gumo/events/public?per_page=30", { headers }),
-      fetch("https://api.github.com/repos/na2gumo/na2zora.pages.dev/commits?per_page=20", { headers }),
-    ]);
-
-    let events: any[] = [];
-    if (eventsRes.status === "fulfilled" && eventsRes.value.ok) {
-      events = await eventsRes.value.json();
-    }
-
-    const recentCommitsByRepo: Record<string, any[]> = {};
-    if (commitsRes.status === "fulfilled" && commitsRes.value.ok) {
-      recentCommitsByRepo["na2gumo/na2zora.pages.dev"] = await commitsRes.value.json();
-    }
-
-    if (events.length === 0) {
-      return [];
-    }
-
-    const aggregated = aggregateGitHubEvents(events, recentCommitsByRepo);
-    return aggregated.slice(0, 5);
-  } catch {
-    return [];
-  }
+export const useGitHubActivities = routeLoader$<GitHubActivityItem[]>(async (event) => {
+  // Cloudflare Pages の env（KV バインディング）を取得
+  const platform = event.platform as PlatformCloudflarePages | undefined;
+  // 15分（900秒）キャッシュ
+  return await fetchGitHubActivitiesWithCache(platform?.env, 900);
 });
 
 export default component$(() => {
