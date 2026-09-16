@@ -50,21 +50,23 @@ export const Sparkles = component$(() => {
     ];
 
     const createParticle = (x: number, y: number, isBurst = false) => {
-      const angle = isBurst ? Math.random() * Math.PI * 2 : Math.random() * Math.PI * 2;
-      const speed = isBurst ? Math.random() * 5 + 2 : Math.random() * 1.5 + 0.5;
-      const size = isBurst ? Math.random() * 4 + 2 : Math.random() * 3 + 1.5;
+      const angle = Math.random() * Math.PI * 2;
+      // 弾け具合・飛散スピードをよりマイルドに調整
+      const speed = isBurst ? Math.random() * 2.2 + 1.0 : Math.random() * 0.9 + 0.3;
+      // 粒子サイズを一回り小さく繊細に（控えめ）
+      const size = isBurst ? Math.random() * 2.2 + 1.2 : Math.random() * 1.6 + 0.8;
 
       particles.push({
         x,
         y,
         vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed - (isBurst ? 1 : 0.5),
+        vy: Math.sin(angle) * speed - (isBurst ? 0.4 : 0.2),
         size,
         color: colors[Math.floor(Math.random() * colors.length)],
         alpha: 1,
-        decay: isBurst ? Math.random() * 0.02 + 0.02 : Math.random() * 0.03 + 0.02,
+        decay: isBurst ? Math.random() * 0.025 + 0.025 : Math.random() * 0.035 + 0.025,
         rotation: Math.random() * Math.PI * 2,
-        rotationSpeed: (Math.random() - 0.5) * 0.2,
+        rotationSpeed: (Math.random() - 0.5) * 0.15,
         isBurst,
       });
     };
@@ -72,22 +74,20 @@ export const Sparkles = component$(() => {
     let lastMoveTime = 0;
     const handleMouseMove = (e: MouseEvent) => {
       const now = performance.now();
-      // カーソル移動時は少し間引いて上品にキラキラを配置
-      if (now - lastMoveTime > 25) {
+      // カーソル移動時は繊細に1〜2粒だけ優しく散らす
+      if (now - lastMoveTime > 30) {
         lastMoveTime = now;
-        for (let i = 0; i < 2; i++) {
-          createParticle(
-            e.clientX + (Math.random() - 0.5) * 8,
-            e.clientY + (Math.random() - 0.5) * 8,
-            false
-          );
-        }
+        createParticle(
+          e.clientX + (Math.random() - 0.5) * 4,
+          e.clientY + (Math.random() - 0.5) * 4,
+          false
+        );
       }
     };
 
     const handleClick = (e: MouseEvent) => {
-      // クリック時は弾けるように星屑が四方八方に拡散
-      const burstCount = 18;
+      // クリック時は派手すぎず上品に8粒だけホロホロと弾ける
+      const burstCount = 8;
       for (let i = 0; i < burstCount; i++) {
         createParticle(e.clientX, e.clientY, true);
       }

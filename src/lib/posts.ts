@@ -36,3 +36,7 @@ export const getAllPosts = (): BlogPost[] => {
   // 新しい日付順にソート
   return posts.sort((a, b) => (a.date < b.date ? 1 : -1));
 };
+
+export const getPostBySlug = (slug: string): BlogPost | undefined => {
+  return getAllPosts().find((p) => p.slug === slug);
+};
