@@ -223,7 +223,7 @@ html[data-theme="light"] .shiki span {
           #f472b6 180deg, /* ソフトピンク */
           #38bdf8 360deg
         );
-        opacity: 0.55;
+        opacity: 0.8;
         filter: blur(14px);
         animation: rotateGlow 7s linear infinite, pulseScale 3.5s ease-in-out infinite alternate;
         pointer-events: none;
@@ -362,11 +362,11 @@ html[data-theme="light"] .shiki span {
 @keyframes pulseScale {
   0% {
     transform: scale(0.98);
-    opacity: 0.5;
+    opacity: 0.7;
   }
   100% {
     transform: scale(1.08);
-    opacity: 0.7;
+    opacity: 0.95;
   }
 }
 
