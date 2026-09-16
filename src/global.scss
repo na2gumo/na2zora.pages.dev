@@ -214,22 +214,18 @@ html[data-theme="light"] .shiki span {
       &::before {
         content: "";
         position: absolute;
-        width: 170px;
-        height: 170px;
+        width: 146px;
+        height: 146px;
         border-radius: 50%;
         background: conic-gradient(
           from 0deg,
-          #ffb3ba 0deg,   /* パステルピンク */
-          #ffdfba 70deg,  /* パステルピーチ */
-          #ffffba 130deg, /* パステルイエロー */
-          #baffc9 190deg, /* パステルミント */
-          #bae1ff 250deg, /* パステルスカイ */
-          #e8c5ff 310deg, /* パステルラベンダー */
-          #ffb3ba 360deg
+          #38bdf8 0deg,   /* スカイブルー / 水色 */
+          #f472b6 180deg, /* ソフトピンク */
+          #38bdf8 360deg
         );
-        opacity: 0.85;
-        filter: blur(20px);
-        animation: rotateGlow 8s linear infinite, pulseScale 3.5s ease-in-out infinite alternate;
+        opacity: 0.55;
+        filter: blur(14px);
+        animation: rotateGlow 7s linear infinite, pulseScale 3.5s ease-in-out infinite alternate;
         pointer-events: none;
       }
 
@@ -365,12 +361,12 @@ html[data-theme="light"] .shiki span {
 
 @keyframes pulseScale {
   0% {
-    transform: scale(0.95);
-    opacity: 0.75;
+    transform: scale(0.98);
+    opacity: 0.5;
   }
   100% {
-    transform: scale(1.18);
-    opacity: 1;
+    transform: scale(1.08);
+    opacity: 0.7;
   }
 }
 
