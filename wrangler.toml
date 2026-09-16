@@ -1,0 +1,18 @@
+name = "na2zora"
+pages_build_output_dir = "dist"
+compatibility_date = "2026-09-15"
+
+[vars]
+NODE_VERSION = "24"
+
+[[kv_namespaces]]
+binding = "KV_CACHE"
+id = "47babe07e1594925be897e75c6fc81cd"
+
+[env.production]
+[[env.production.kv_namespaces]]
+binding = "KV_CACHE"
+id = "47babe07e1594925be897e75c6fc81cd"
+
+[env.production.vars]
+NODE_VERSION = "24"
