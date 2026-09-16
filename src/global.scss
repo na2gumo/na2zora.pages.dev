@@ -214,13 +214,22 @@ html[data-theme="light"] .shiki span {
       &::before {
         content: "";
         position: absolute;
-        width: 144px;
-        height: 144px;
+        width: 170px;
+        height: 170px;
         border-radius: 50%;
-        background: radial-gradient(circle, var(--color-primary) 0%, var(--color-primary-glow) 55%, transparent 75%);
+        background: conic-gradient(
+          from 0deg,
+          #ffb3ba 0deg,   /* パステルピンク */
+          #ffdfba 70deg,  /* パステルピーチ */
+          #ffffba 130deg, /* パステルイエロー */
+          #baffc9 190deg, /* パステルミント */
+          #bae1ff 250deg, /* パステルスカイ */
+          #e8c5ff 310deg, /* パステルラベンダー */
+          #ffb3ba 360deg
+        );
         opacity: 0.85;
-        filter: blur(14px);
-        animation: pulseGlow 3s ease-in-out infinite alternate;
+        filter: blur(20px);
+        animation: rotateGlow 8s linear infinite, pulseScale 3.5s ease-in-out infinite alternate;
         pointer-events: none;
       }
 
@@ -257,35 +266,8 @@ html[data-theme="light"] .shiki span {
     .hero-tagline {
       font-size: 1.05rem;
       max-width: 520px;
-      margin: 0 auto 1.75rem;
+      margin: 0 auto;
       line-height: 1.65;
-    }
-
-    .social-links {
-      display: flex;
-      gap: 0.75rem;
-      align-items: center;
-      justify-content: center;
-      flex-wrap: wrap;
-
-      a {
-        padding: 0.45rem 1.1rem;
-        border: 1px solid var(--color-border);
-        background-color: var(--color-surface);
-        border-radius: 9999px;
-        font-size: 0.9rem;
-        font-weight: 500;
-        text-decoration: none;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-
-        &:hover {
-          border-color: var(--color-primary);
-          transform: translateY(-2px);
-          box-shadow: 0 6px 16px var(--color-primary-glow);
-          opacity: 1;
-        }
-      }
     }
   }
 
@@ -372,13 +354,22 @@ html[data-theme="light"] .shiki span {
   }
 }
 
-@keyframes pulseGlow {
+@keyframes rotateGlow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulseScale {
   0% {
-    transform: scale(0.96);
-    opacity: 0.6;
+    transform: scale(0.95);
+    opacity: 0.75;
   }
   100% {
-    transform: scale(1.15);
+    transform: scale(1.18);
     opacity: 1;
   }
 }

@@ -31,21 +31,6 @@ export default component$(() => {
         <p class="hero-tagline">
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.
         </p>
-        <div class="social-links">
-          <a
-            href="https://github.com/na2gumo"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            GitHub
-          </a>
-          <Link href="/blog/">
-            Blog
-          </Link>
-          <Link href="/feed.xml" target="_blank" rel="noopener noreferrer">
-            RSS
-          </Link>
-        </div>
       </section>
 
       {/* About セクション */}
