@@ -39,7 +39,7 @@ export default defineConfig(({ command, mode }): UserConfig => {
               {
                 themes: {
                   light: "github-light",
-                  dark: "github-dark",
+                  dark: "dracula",
                 },
               },
             ],
