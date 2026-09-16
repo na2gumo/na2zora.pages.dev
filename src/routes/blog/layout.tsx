@@ -1,15 +1,18 @@
 import { component$, Slot } from "@builder.io/qwik";
-import { Link, useLocation } from "@builder.io/qwik-city";
+import { Link, routeLoader$, useLocation } from "@builder.io/qwik-city";
 import { getPostBySlug } from "../../lib/posts";
 
-export default component$(() => {
-  const loc = useLocation();
-  const pathSegments = loc.url.pathname.replace(/^\/|\/$/g, "").split("/");
-  const isPostPage = pathSegments[0] === "blog" && Boolean(pathSegments[1]);
-  const currentSlug = isPostPage ? pathSegments[1] : "";
-  const post = currentSlug ? getPostBySlug(currentSlug) : undefined;
+export const useCurrentPost = routeLoader$(({ url }) => {
+  const [section, slug] = url.pathname.replace(/^\/|\/$/g, "").split("/");
+  return section === "blog" && slug ? (getPostBySlug(slug) ?? null) : null;
+});
 
-  const pageTitle = post?.title || "Blog";
+export default component$(() => {
+  const post = useCurrentPost();
+  const loc = useLocation();
+
+  const isPostPage = post.value !== null;
+  const pageTitle = post.value?.title || "Blog";
   const shareUrl = loc.url.href;
   const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(pageTitle)}&url=${encodeURIComponent(shareUrl)}`;
 
