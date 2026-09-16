@@ -1,9 +1,11 @@
 import { component$, Slot } from "@builder.io/qwik";
 import { Link } from "@builder.io/qwik-city";
+import { Sparkles } from "../components/sparkles/sparkles";
 
 export default component$(() => {
   return (
     <div class="site-container">
+      <Sparkles />
       <header class="site-header">
         <nav>
           <Link href="/" class="nav-brand">
