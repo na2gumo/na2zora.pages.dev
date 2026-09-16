@@ -344,24 +344,7 @@ html[data-theme="light"] .shiki span {
     }
 
     .activity-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 0.5rem;
       font-size: 0.8rem;
-    }
-
-    .activity-badge {
-      display: inline-flex;
-      align-items: center;
-      padding: 0.15rem 0.5rem;
-      border-radius: 9999px;
-      font-size: 0.75rem;
-      font-family: var(--font-mono);
-      font-weight: 600;
-      background-color: var(--color-primary-glow);
-      color: var(--color-primary);
     }
 
     .activity-title {
@@ -383,6 +366,15 @@ html[data-theme="light"] .shiki span {
       font-size: 0.85rem;
       color: var(--color-text-muted);
       overflow-wrap: anywhere;
+    }
+  }
+
+  .activity-view-all {
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: var(--color-text) !important;
+      text-decoration: underline !important;
     }
   }
 }

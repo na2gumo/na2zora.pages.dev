@@ -29,12 +29,12 @@ export function formatGitHubEvent(event: any): GitHubActivityItem | null {
       return {
         id: event.id,
         type: "Push",
-        actionText: `Pushed ${commitCount > 1 ? `${commitCount} commits` : "commit"} to ${branch}`,
-        repoName,
-        repoUrl,
+        actionText: `Made ${commitCount} ${commitCount === 1 ? "commit" : "commits"} to`,
+        repoName: branch ? `${repoName} (${branch})` : repoName,
+        repoUrl: branch ? `${repoUrl}/tree/${branch}` : repoUrl,
         date,
         detail: commitMsg,
-        targetUrl: `${repoUrl}/tree/${branch}`,
+        targetUrl: branch ? `${repoUrl}/tree/${branch}` : repoUrl,
       };
     }
     case "PullRequestEvent": {

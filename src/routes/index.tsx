@@ -107,17 +107,7 @@ export default component$(() => {
 
       {/* GitHub Activity セクション */}
       <section class="section">
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "1rem" }}>
-          <h2 style={{ margin: 0, border: "none", padding: 0 }}>Recent GitHub Activity</h2>
-          <a
-            href="https://github.com/na2gumo"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ fontSize: "0.9rem" }}
-          >
-            GitHub profile →
-          </a>
-        </div>
+        <h2>Recent GitHub Activity</h2>
 
         {githubActivities.value.length === 0 ? (
           <p style={{ color: "var(--color-text-muted)", fontSize: "0.9rem" }}>
@@ -128,7 +118,6 @@ export default component$(() => {
             {githubActivities.value.map((activity) => (
               <article key={activity.id} class="activity-card">
                 <div class="activity-header">
-                  <span class="activity-badge">{activity.type}</span>
                   <time style={{ color: "var(--color-text-muted)" }}>{activity.date}</time>
                 </div>
                 <div class="activity-title">
@@ -146,6 +135,22 @@ export default component$(() => {
                 )}
               </article>
             ))}
+
+            <div style={{ marginTop: "0.5rem" }}>
+              <a
+                href="https://github.com/na2gumo"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  color: "var(--color-text-muted)",
+                  fontSize: "0.875rem",
+                  textDecoration: "none",
+                }}
+                class="activity-view-all"
+              >
+                View all →
+              </a>
+            </div>
           </div>
         )}
       </section>
