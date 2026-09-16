@@ -42,7 +42,7 @@ export default component$(() => {
             <h1 class="hero-name">なつぐも</h1>
             <p class="hero-handle">@na2gumo</p>
             <p class="hero-tagline">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.
+              夏空を君と見上げたあの日を、私はまだ覚えている。
             </p>
           </section>
 
@@ -50,7 +50,7 @@ export default component$(() => {
           <section class="section">
             <h2>About</h2>
             <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+	      VRChatに生息している学生です。最近はMinecraftにも手を付けたり。
             </p>
           </section>
 
@@ -58,11 +58,11 @@ export default component$(() => {
           <section class="section">
             <h2>Skills & Interests</h2>
             <div class="skills-grid">
-              <span class="skill-tag">Skill 1</span>
-              <span class="skill-tag">Skill 2</span>
-              <span class="skill-tag">Skill 3</span>
-              <span class="skill-tag">Skill 4</span>
-              <span class="skill-tag">Skill 5</span>
+              <span class="skill-tag">Web Dev</span>
+              <span class="skill-tag">Unity</span>
+              <span class="skill-tag">Linux</span>
+              <span class="skill-tag">CyberSecurity</span>
+              <span class="skill-tag">Privacy</span>
             </div>
           </section>
         </div>
