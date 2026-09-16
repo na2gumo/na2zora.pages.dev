@@ -329,18 +329,53 @@ html[data-theme="light"] .shiki span {
   }
 
   .activity-card {
-    padding: 1rem 1.25rem;
     border-radius: 10px;
     border: 1px solid var(--color-border);
     background-color: var(--color-surface);
     transition: all 0.25s ease;
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
+    overflow: hidden;
 
     &:hover {
       border-color: var(--color-primary);
-      transform: translateY(-2px);
+    }
+
+    &[open] {
+      border-color: var(--color-primary);
+
+      .activity-summary::after {
+        transform: rotate(90deg);
+      }
+    }
+
+    .activity-summary {
+      padding: 1rem 1.25rem;
+      cursor: pointer;
+      list-style: none;
+      user-select: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      position: relative;
+
+      &::-webkit-details-marker {
+        display: none;
+      }
+
+      &::after {
+        content: "›";
+        position: absolute;
+        right: 1.25rem;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1.3rem;
+        line-height: 1;
+        color: var(--color-text-muted);
+        transition: transform 0.2s ease, color 0.2s ease;
+      }
+
+      &:hover::after {
+        color: var(--color-text);
+      }
     }
 
     .activity-header {
@@ -351,6 +386,7 @@ html[data-theme="light"] .shiki span {
       font-size: 0.95rem;
       font-weight: 600;
       margin: 0;
+      padding-right: 1.5rem;
 
       a {
         text-decoration: none;
@@ -361,11 +397,59 @@ html[data-theme="light"] .shiki span {
       }
     }
 
+    .activity-expanded-details {
+      padding: 0 1.25rem 1rem;
+      animation: fadeIn 0.2s ease-out;
+      border-top: 1px dashed var(--color-border);
+      padding-top: 0.75rem;
+    }
+
     .activity-detail {
       margin: 0;
       font-size: 0.85rem;
       color: var(--color-text-muted);
       overflow-wrap: anywhere;
+    }
+
+    .activity-commits-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      font-size: 0.85rem;
+
+      .activity-commit-item {
+        display: flex;
+        align-items: baseline;
+        gap: 0.5rem;
+        overflow-wrap: anywhere;
+
+        .commit-sha {
+          font-family: var(--font-mono);
+          font-size: 0.75rem;
+          color: var(--color-primary);
+          background-color: var(--color-primary-glow);
+          padding: 0.1rem 0.35rem;
+          border-radius: 4px;
+          flex-shrink: 0;
+        }
+
+        .commit-msg {
+          color: var(--color-text-muted);
+
+          a {
+            color: inherit;
+            text-decoration: none;
+
+            &:hover {
+              color: var(--color-text);
+              text-decoration: underline;
+            }
+          }
+        }
+      }
     }
   }
 

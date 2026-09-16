@@ -1,7 +1,7 @@
 import { component$ } from "@builder.io/qwik";
 import { Link, type DocumentHead, routeLoader$ } from "@builder.io/qwik-city";
 import { getAllPosts, type BlogPost } from "../lib/posts";
-import { formatGitHubEvent, type GitHubActivityItem } from "../lib/github";
+import { aggregateGitHubEvents, type GitHubActivityItem } from "../lib/github";
 
 export const useLatestPosts = routeLoader$<BlogPost[]>(() => {
   return getAllPosts().slice(0, 3);
@@ -9,20 +9,32 @@ export const useLatestPosts = routeLoader$<BlogPost[]>(() => {
 
 export const useGitHubActivities = routeLoader$<GitHubActivityItem[]>(async () => {
   try {
-    const res = await fetch("https://api.github.com/users/na2gumo/events/public?per_page=12", {
-      headers: {
-        Accept: "application/vnd.github.v3+json",
-        "User-Agent": "na2zora-portfolio",
-      },
-    });
-    if (!res.ok) {
+    const headers = {
+      Accept: "application/vnd.github.v3+json",
+      "User-Agent": "na2zora-portfolio",
+    };
+
+    const [eventsRes, commitsRes] = await Promise.allSettled([
+      fetch("https://api.github.com/users/na2gumo/events/public?per_page=30", { headers }),
+      fetch("https://api.github.com/repos/na2gumo/na2zora.pages.dev/commits?per_page=20", { headers }),
+    ]);
+
+    let events: any[] = [];
+    if (eventsRes.status === "fulfilled" && eventsRes.value.ok) {
+      events = await eventsRes.value.json();
+    }
+
+    const recentCommitsByRepo: Record<string, any[]> = {};
+    if (commitsRes.status === "fulfilled" && commitsRes.value.ok) {
+      recentCommitsByRepo["na2gumo/na2zora.pages.dev"] = await commitsRes.value.json();
+    }
+
+    if (events.length === 0) {
       return [];
     }
-    const events = (await res.json()) as any[];
-    return events
-      .map(formatGitHubEvent)
-      .filter((item): item is GitHubActivityItem => item !== null)
-      .slice(0, 6);
+
+    const aggregated = aggregateGitHubEvents(events, recentCommitsByRepo);
+    return aggregated.slice(0, 5);
   } catch {
     return [];
   }
@@ -116,24 +128,55 @@ export default component$(() => {
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
             {githubActivities.value.map((activity) => (
-              <article key={activity.id} class="activity-card">
-                <div class="activity-header">
-                  <time style={{ color: "var(--color-text-muted)" }}>{activity.date}</time>
-                </div>
-                <div class="activity-title">
-                  <span style={{ marginRight: "0.4rem" }}>{activity.actionText}</span>
-                  <a
-                    href={activity.targetUrl || activity.repoUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {activity.repoName}
-                  </a>
-                </div>
-                {activity.detail && (
-                  <p class="activity-detail">{activity.detail}</p>
-                )}
-              </article>
+              <details key={activity.id} class="activity-card">
+                <summary class="activity-summary">
+                  <div class="activity-header">
+                    <time style={{ color: "var(--color-text-muted)" }}>{activity.date}</time>
+                  </div>
+                  <div class="activity-title">
+                    <span style={{ marginRight: "0.4rem" }}>{activity.actionText}</span>
+                    <a
+                      href={activity.targetUrl || activity.repoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick$={(e) => e.stopPropagation()}
+                    >
+                      {activity.repoName}
+                    </a>
+                  </div>
+                </summary>
+
+                {activity.detailsList && activity.detailsList.length > 0 ? (
+                  <div class="activity-expanded-details">
+                    <ul class="activity-commits-list">
+                      {activity.detailsList.map((item, idx) => (
+                        <li key={idx} class="activity-commit-item">
+                          {item.sha && (
+                            <span class="commit-sha">{item.sha}</span>
+                          )}
+                          <span class="commit-msg">
+                            {item.url ? (
+                              <a
+                                href={item.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                {item.message}
+                              </a>
+                            ) : (
+                              item.message
+                            )}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : activity.detail ? (
+                  <div class="activity-expanded-details">
+                    <p class="activity-detail">{activity.detail}</p>
+                  </div>
+                ) : null}
+              </details>
             ))}
 
             <div style={{ marginTop: "0.5rem" }}>
