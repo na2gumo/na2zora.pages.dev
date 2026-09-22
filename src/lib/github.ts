@@ -265,10 +265,16 @@ export async function fetchGitHubActivitiesWithCache(
 
   // 2. GitHub API から新規取得
   try {
-    const headers = {
+    const headers: Record<string, string> = {
       Accept: "application/vnd.github.v3+json",
       "User-Agent": "na2zora-portfolio",
     };
+    const token =
+      env?.GITHUB_TOKEN ||
+      (typeof process !== "undefined" ? process.env?.GITHUB_TOKEN : undefined);
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
 
     const eventsRes = await fetch(
       "https://api.github.com/users/na2gumo/events/public?per_page=30",
@@ -277,23 +283,10 @@ export async function fetchGitHubActivitiesWithCache(
 
     let events: any[] = [];
     if (eventsRes.ok) {
-      try {
-        events = await eventsRes.json();
-      } catch (err) {
-        console.error("[github] JSON parse failed:", err);
-      }
-    } else {
-      const body = await eventsRes.text().catch(() => "");
-      console.error(
-        "[github] GitHub API not ok:",
-        eventsRes.status,
-        eventsRes.statusText,
-        body.slice(0, 300)
-      );
+      events = await eventsRes.json().catch(() => []);
     }
 
     if (events.length === 0) {
-      console.error("[github] events empty, status=", eventsRes.status);
       return [];
     }
 
@@ -311,8 +304,7 @@ export async function fetchGitHubActivitiesWithCache(
     }
 
     return aggregated;
-  } catch (err) {
-    console.error("[github] fetchGitHubActivitiesWithCache failed:", err);
+  } catch {
     return [];
   }
 }

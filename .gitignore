@@ -45,3 +45,7 @@ lerna-debug.log*
 .commandcode/
 
 .wrangler
+# local secrets
+.dev.vars
+.env.local
+.env*
