@@ -3,7 +3,6 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { build, type GlyphtConfig } from "@glypht/cli";
 import fg from "fast-glob";
-import matter from "gray-matter";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, "..");
@@ -11,10 +10,6 @@ const rootDir = path.resolve(__dirname, "..");
 // 共通で常に含める基本ASCII文字（記号・英数字など）
 const BASE_CHARS =
   " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
-
-// サイト共通要素（ヘッダー・フッター・ナビゲーション・固定テキスト等）の文字
-const COMMON_UI_TEXT =
-  "なつぐもna2zoraBlogRSSAllrightsreservedBuiltwithQwikCloudflarePagesAboutRecentPostsSkillsInterestsGitHubViewall←→XTwitterで共有記事一覧に戻るすべての記事を見る";
 
 function getUniqueChars(text: string): string {
   const set = new Set(Array.from(text));
@@ -63,108 +58,92 @@ function charsToUnicodeRange(chars: string): string {
   return ranges.join(", ");
 }
 
-async function main() {
-  console.log("🔤 Starting per-page font subset generation with glypht...");
-
-  // 全MDXとトップページ等のテキストを収集
-  const mdxFiles = await fg(["src/routes/blog/**/index.mdx"], { cwd: rootDir });
-  const pages: { name: string; text: string; outDir: string; cssPath: string }[] = [];
-
-  // 1. トップ & 共通UI用
-  pages.push({
-    name: "common",
-    text: BASE_CHARS + COMMON_UI_TEXT,
-    outDir: "public/fonts/common",
-    cssPath: "public/fonts/common/fonts.css",
+async function collectAllSourceText(): Promise<string> {
+  const sourceFiles = await fg(["src/**/*.{tsx,ts,jsx,js,scss,css,html}"], {
+    cwd: rootDir,
+    ignore: ["node_modules/**", "dist/**"],
   });
 
-  // 2. 各ブログ記事用
-  for (const relPath of mdxFiles) {
+  let collected = "";
+  for (const relPath of sourceFiles) {
     const fullPath = path.join(rootDir, relPath);
-    const content = fs.readFileSync(fullPath, "utf-8");
-    const { data, content: body } = matter(content);
-    const match = relPath.match(/src\/routes\/blog\/(.+)\/index\.mdx$/);
-    const slug = match ? match[1] : "post";
-
-    const articleText =
-      BASE_CHARS +
-      COMMON_UI_TEXT +
-      (data.title || "") +
-      (data.description || "") +
-      (data.date || "") +
-      body;
-
-    pages.push({
-      name: slug,
-      text: articleText,
-      outDir: `public/fonts/blog/${slug}`,
-      cssPath: `public/fonts/blog/${slug}/fonts.css`,
-    });
+    try {
+      const content = fs.readFileSync(fullPath, "utf-8");
+      collected += content;
+    } catch (e) {
+      console.warn(`Failed to read file for font subset: ${relPath}`, e);
+    }
   }
 
-  // 各ページ用のサブセットWOFF2フォントとCSSを生成
-  for (const page of pages) {
-    console.log(`Generating subset font for [${page.name}]...`);
-    const unique = getUniqueChars(page.text);
-    const unicodeRange = charsToUnicodeRange(unique);
+  return collected;
+}
 
-    const outDirAbs = path.join(rootDir, page.outDir);
-    fs.mkdirSync(outDirAbs, { recursive: true });
+async function main() {
+  console.log("🔤 Scanning source files and generating font subset with glypht...");
 
-    // BIZ UDPGothic (日本語 & 全般)
-    const bizConfig: GlyphtConfig = {
-      input: path.join(rootDir, "fonts/raw/BIZUDPGothic-Regular.ttf"),
-      outDir: outDirAbs,
-      outCssFile: path.join(rootDir, page.cssPath),
-      basePath: `/${page.outDir.replace(/^public\//, "")}/`,
-      formats: { woff2: true },
-      woff2Compression: 11,
-      settings: {
-        "BIZ UDPGothic": {
-          enableSubsetting: true,
-          includeCharacters: {
-            includeUnicodeRanges: unicodeRange,
-          },
+  const sourceText = await collectAllSourceText();
+  const allChars = BASE_CHARS + sourceText;
+  const uniqueChars = getUniqueChars(allChars);
+  const unicodeRange = charsToUnicodeRange(uniqueChars);
+
+  const outDir = "public/fonts/common";
+  const cssPath = "public/fonts/common/fonts.css";
+  const outDirAbs = path.join(rootDir, outDir);
+  fs.mkdirSync(outDirAbs, { recursive: true });
+
+  console.log(`Included unique characters: ${uniqueChars.length}`);
+
+  // BIZ UDPGothic (日本語 & 全般)
+  const bizConfig: GlyphtConfig = {
+    input: path.join(rootDir, "fonts/raw/BIZUDPGothic-Regular.ttf"),
+    outDir: outDirAbs,
+    outCssFile: path.join(rootDir, cssPath),
+    basePath: `/${outDir.replace(/^public\//, "")}/`,
+    formats: { woff2: true },
+    woff2Compression: 11,
+    settings: {
+      "BIZ UDPGothic": {
+        enableSubsetting: true,
+        includeCharacters: {
+          includeUnicodeRanges: unicodeRange,
         },
       },
-    };
+    },
+  };
 
-    // Geist Mono (英数・等幅)
-    const geistConfig: GlyphtConfig = {
-      input: path.join(rootDir, "fonts/raw/GeistMono.ttf"),
-      outDir: outDirAbs,
-      outCssFile: path.join(rootDir, page.cssPath),
-      basePath: `/${page.outDir.replace(/^public\//, "")}/`,
-      formats: { woff2: true },
-      woff2Compression: 11,
-      settings: {
-        "Geist Mono": {
-          enableSubsetting: true,
-          includeCharacters: {
-            includeUnicodeRanges: "U+0020-007E",
-          },
+  // Geist Mono (英数・等幅)
+  const geistConfig: GlyphtConfig = {
+    input: path.join(rootDir, "fonts/raw/GeistMono.ttf"),
+    outDir: outDirAbs,
+    outCssFile: path.join(rootDir, cssPath),
+    basePath: `/${outDir.replace(/^public\//, "")}/`,
+    formats: { woff2: true },
+    woff2Compression: 11,
+    settings: {
+      "Geist Mono": {
+        enableSubsetting: true,
+        includeCharacters: {
+          includeUnicodeRanges: "U+0020-007E",
         },
       },
-    };
+    },
+  };
 
-    try {
-      await build(bizConfig, rootDir);
-      // CSSを追記モードでGeist Monoを追加
-      const existingCss = fs.readFileSync(path.join(rootDir, page.cssPath), "utf-8");
-      await build(geistConfig, rootDir);
-      const geistCss = fs.readFileSync(path.join(rootDir, page.cssPath), "utf-8");
-      
-      // 相対URLのパス補正（glyphtが出力するsrc urlを /fonts/... のクリーンなパスに変換）
-      let combinedCss = existingCss + "\n" + geistCss;
-      combinedCss = combinedCss.replace(
-        /src: url\(".*?\/(BIZUDPGothic\.woff2|GeistMono\.woff2)"\)/g,
-        `src: url("/${page.outDir.replace(/^public\//, "")}/$1")`
-      );
-      
-      fs.writeFileSync(path.join(rootDir, page.cssPath), combinedCss, "utf-8");
-    } catch (e) {
-      console.warn(`Font generation warning for ${page.name}:`, e);
-    }
+  try {
+    await build(bizConfig, rootDir);
+    const existingCss = fs.readFileSync(path.join(rootDir, cssPath), "utf-8");
+    await build(geistConfig, rootDir);
+    const geistCss = fs.readFileSync(path.join(rootDir, cssPath), "utf-8");
+
+    let combinedCss = existingCss + "\n" + geistCss;
+    combinedCss = combinedCss.replace(
+      /src: url\(".*?\/(BIZUDPGothic\.woff2|GeistMono\.woff2)"\)/g,
+      `src: url("/${outDir.replace(/^public\//, "")}/$1")`
+    );
+
+    fs.writeFileSync(path.join(rootDir, cssPath), combinedCss, "utf-8");
+  } catch (e) {
+    console.warn("Font generation warning:", e);
   }
 
   console.log("✨ Font subsetting complete!");

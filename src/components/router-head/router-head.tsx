@@ -32,16 +32,8 @@ export const RouterHead = component$(() => {
           })();
         `}
       />
-      {/* ページ専用サブセットフォントの読み込み */}
-      {(() => {
-        const pathSegments = loc.url.pathname.replace(/^\/|\/$/g, "").split("/");
-        // 例: /blog/first-post/ -> /fonts/blog/first-post/fonts.css
-        const fontHref =
-          pathSegments[0] === "blog" && pathSegments[1]
-            ? `/fonts/blog/${pathSegments[1]}/fonts.css`
-            : `/fonts/common/fonts.css`;
-        return <link rel="stylesheet" href={fontHref} />;
-      })()}
+      {/* フォントの読み込み */}
+      <link rel="stylesheet" href="/fonts/common/fonts.css" />
 
       {head.meta.map((m) => (
         <meta key={m.key} {...m} />

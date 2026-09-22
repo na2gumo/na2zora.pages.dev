@@ -12,8 +12,6 @@ export default component$(() => {
           <Link href="/" class="nav-brand">
             <strong>na2zora</strong>
           </Link>
-          <Link href="/blog/">Blog</Link>
-          <Link href="/feed.xml" target="_blank" rel="noopener noreferrer">RSS</Link>
         </nav>
         <ThemeToggle />
       </header>

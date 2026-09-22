@@ -6,9 +6,6 @@ import { defineConfig, type UserConfig } from "vite";
 import { qwikVite } from "@builder.io/qwik/optimizer";
 import { qwikCity } from "@builder.io/qwik-city/vite";
 import tsconfigPaths from "vite-tsconfig-paths";
-import remarkGfm from "remark-gfm";
-import remarkFrontmatter from "remark-frontmatter";
-import rehypeShiki from "@shikijs/rehype";
 import pkg from "./package.json";
 
 type PkgDep = Record<string, string>;
@@ -25,27 +22,7 @@ errorOnDuplicatesPkgDeps(devDependencies, dependencies);
 export default defineConfig(({ command, mode }): UserConfig => {
   return {
     plugins: [
-      qwikCity({
-        mdxPlugins: {
-          remarkGfm: false,
-          rehypeSyntaxHighlight: false,
-          rehypeAutolinkHeadings: true,
-        },
-        mdx: {
-          remarkPlugins: [remarkFrontmatter, remarkGfm],
-          rehypePlugins: [
-            [
-              rehypeShiki,
-              {
-                themes: {
-                  light: "github-light",
-                  dark: "dracula",
-                },
-              },
-            ],
-          ],
-        },
-      }),
+      qwikCity(),
       qwikVite(),
       tsconfigPaths({ root: "." }),
     ],
