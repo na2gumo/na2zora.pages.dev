@@ -20,10 +20,7 @@ export interface GitHubActivityItem {
  * 複数の GitHub イベント（特に同じリポジトリ・同じ日への PushEvent）を
  * 1 つのアクティビティにまとめ、コミット一覧や詳細を detailsList に保持する。
  */
-export function aggregateGitHubEvents(
-  events: any[],
-  recentCommitsByRepo: Record<string, any[]> = {}
-): GitHubActivityItem[] {
+export function aggregateGitHubEvents(events: any[]): GitHubActivityItem[] {
   const aggregated: GitHubActivityItem[] = [];
 
   for (const event of events) {
@@ -41,10 +38,10 @@ export function aggregateGitHubEvents(
     if (type === "PushEvent") {
       const branch = (payload.ref || "").replace("refs/heads/", "");
       const commitList: any[] = payload.commits || [];
-      let commitCount = commitList.length > 0 ? commitList.length : (payload.size ?? (payload.distinct_size ?? 1));
+      const commitCount = commitList.length > 0 ? commitList.length : (payload.size ?? (payload.distinct_size ?? 1));
 
       // コミット詳細リストの生成（payload.commits にあればそれを利用）
-      let details: ActivityDetailItem[] = commitList.map((c) => ({
+      const details: ActivityDetailItem[] = commitList.map((c) => ({
         message: c.message ? c.message.split("\n")[0] : "Commit",
         sha: c.sha ? c.sha.slice(0, 7) : undefined,
         url: c.url
@@ -84,24 +81,6 @@ export function aggregateGitHubEvents(
           existing.detail = existing.detailsList[0].message;
         }
         continue;
-      }
-
-      // payload.commits が空の場合、渡された recentCommitsByRepo から同日のコミットを補完
-      if (details.length === 0 && recentCommitsByRepo[repoName]) {
-        const repoCommits = recentCommitsByRepo[repoName];
-        const dayCommits = repoCommits.filter((c: any) => {
-          const cDate = c.commit?.committer?.date || c.commit?.author?.date || "";
-          return cDate.startsWith(date);
-        });
-
-        if (dayCommits.length > 0) {
-          commitCount = Math.max(commitCount, dayCommits.length);
-          details = dayCommits.map((c: any) => ({
-            message: (c.commit?.message || "").split("\n")[0] || "Commit",
-            sha: (c.sha || "").slice(0, 7),
-            url: c.html_url || `${repoUrl}/commit/${c.sha}`,
-          }));
-        }
       }
 
       // 新規 Push アイテム
@@ -291,26 +270,34 @@ export async function fetchGitHubActivitiesWithCache(
       "User-Agent": "na2zora-portfolio",
     };
 
-    const [eventsRes, commitsRes] = await Promise.allSettled([
-      fetch("https://api.github.com/users/na2gumo/events/public?per_page=30", { headers }),
-      fetch("https://api.github.com/repos/na2gumo/na2zora.pages.dev/commits?per_page=20", { headers }),
-    ]);
+    const eventsRes = await fetch(
+      "https://api.github.com/users/na2gumo/events/public?per_page=30",
+      { headers }
+    );
 
     let events: any[] = [];
-    if (eventsRes.status === "fulfilled" && eventsRes.value.ok) {
-      events = await eventsRes.value.json();
-    }
-
-    const recentCommitsByRepo: Record<string, any[]> = {};
-    if (commitsRes.status === "fulfilled" && commitsRes.value.ok) {
-      recentCommitsByRepo["na2gumo/na2zora.pages.dev"] = await commitsRes.value.json();
+    if (eventsRes.ok) {
+      try {
+        events = await eventsRes.json();
+      } catch (err) {
+        console.error("[github] JSON parse failed:", err);
+      }
+    } else {
+      const body = await eventsRes.text().catch(() => "");
+      console.error(
+        "[github] GitHub API not ok:",
+        eventsRes.status,
+        eventsRes.statusText,
+        body.slice(0, 300)
+      );
     }
 
     if (events.length === 0) {
+      console.error("[github] events empty, status=", eventsRes.status);
       return [];
     }
 
-    const aggregated = aggregateGitHubEvents(events, recentCommitsByRepo).slice(0, 5);
+    const aggregated = aggregateGitHubEvents(events).slice(0, 5);
 
     // 3. KV が利用可能なら結果をキャッシュ保存（expirationTtl 指定）
     if (kv && typeof kv.put === "function" && aggregated.length > 0) {
@@ -324,7 +311,8 @@ export async function fetchGitHubActivitiesWithCache(
     }
 
     return aggregated;
-  } catch {
+  } catch (err) {
+    console.error("[github] fetchGitHubActivitiesWithCache failed:", err);
     return [];
   }
 }

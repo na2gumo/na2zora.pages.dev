@@ -1,7 +1,8 @@
 @use "kiso.css/kiso.css";
 
 :root {
-  --font-sans: "BIZ UDPGothic", "BIZ UDGothic", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --font-sans:
+    "BIZ UDPGothic", "BIZ UDGothic", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
   --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --color-bg: #fafafa;
   --color-text: #1a1a1a;
@@ -49,14 +50,17 @@ a {
   color: var(--color-primary);
   text-decoration: underline;
   text-underline-offset: 3px;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 
   &:hover {
     opacity: 0.8;
   }
 }
 
-code, pre {
+code,
+pre {
   font-family: var(--font-mono);
 }
 
@@ -258,9 +262,9 @@ html[data-theme="light"] .shiki span {
         border-radius: 50%;
         background: conic-gradient(
           from 0deg,
-          #38bdf8 0deg,   /* スカイブルー / 水色 */
-          #818cf8 180deg, /* 青紫 / インディゴバイオレット */
-          #38bdf8 360deg
+          #38bdf8 0deg,
+          /* スカイブルー / 水色 */ #818cf8 180deg,
+          /* 青紫 / インディゴバイオレット */ #38bdf8 360deg
         );
         opacity: 0.8;
         filter: blur(14px);
@@ -394,7 +398,9 @@ html[data-theme="light"] .shiki span {
         font-size: 1.3rem;
         line-height: 1;
         color: var(--color-text-muted);
-        transition: transform 0.2s ease, color 0.2s ease;
+        transition:
+          transform 0.2s ease,
+          color 0.2s ease;
       }
 
       &:hover::after {
@@ -516,4 +522,3 @@ html[data-theme="light"] .shiki span {
     transform: rotate(360deg);
   }
 }
-

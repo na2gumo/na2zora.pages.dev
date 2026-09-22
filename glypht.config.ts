@@ -1,6 +1,6 @@
 /**
  * Glypht build configuration example
- * 
+ *
  * To subset self-hosted fonts with glypht:
  * 1. Place your raw .ttf/.otf fonts in `fonts/raw/`
  * 2. Run `pnpm font:subset`

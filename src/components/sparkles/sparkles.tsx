@@ -75,13 +75,9 @@ export const Sparkles = component$(() => {
     const handleMouseMove = (e: MouseEvent) => {
       const now = performance.now();
       // カーソル移動時は繊細に1〜2粒だけ優しく散らす
-      if (now - lastMoveTime > 30) {
+      if (now - lastMoveTime > 20) {
         lastMoveTime = now;
-        createParticle(
-          e.clientX + (Math.random() - 0.5) * 4,
-          e.clientY + (Math.random() - 0.5) * 4,
-          false
-        );
+        createParticle(e.clientX + (Math.random() - 0.5) * 4, e.clientY + (Math.random() - 0.5) * 4, false);
       }
     };
 
@@ -103,7 +99,7 @@ export const Sparkles = component$(() => {
       cy: number,
       spikes: number,
       outerRadius: number,
-      innerRadius: number
+      innerRadius: number,
     ) => {
       let rot = (Math.PI / 2) * 3;
       let x = cx;

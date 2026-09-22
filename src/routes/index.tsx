@@ -35,17 +35,13 @@ export default component$(() => {
             </div>
             <h1 class="hero-name">なつぐも</h1>
             <p class="hero-handle">@na2gumo</p>
-            <p class="hero-tagline">
-              夏空を君と見上げたあの日を、私はまだ覚えている。
-            </p>
+            <p class="hero-tagline">夏空を君と見上げたあの日を、私はまだ覚えている。</p>
           </section>
 
           {/* About セクション */}
           <section class="section">
             <h2>About</h2>
-            <p>
-	      VRChatに生息している学生です。最近はMinecraftにも手を付けたり。
-            </p>
+            <p>VRChatに生息している学生です。最近はMinecraftにも手を付けたり。</p>
           </section>
 
           {/* Skills / Interests セクション */}
@@ -97,16 +93,10 @@ export default component$(() => {
                         <ul class="activity-commits-list">
                           {activity.detailsList.map((item, idx) => (
                             <li key={idx} class="activity-commit-item">
-                              {item.sha && (
-                                <span class="commit-sha">{item.sha}</span>
-                              )}
+                              {item.sha && <span class="commit-sha">{item.sha}</span>}
                               <span class="commit-msg">
                                 {item.url ? (
-                                  <a
-                                    href={item.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                  >
+                                  <a href={item.url} target="_blank" rel="noopener noreferrer">
                                     {item.message}
                                   </a>
                                 ) : (

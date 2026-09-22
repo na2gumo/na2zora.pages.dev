@@ -13,10 +13,7 @@ export const ThemeToggle = component$(() => {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     const handleChange = () => {
       if (currentTheme.value === "auto") {
-        document.documentElement.setAttribute(
-          "data-theme",
-          mediaQuery.matches ? "dark" : "light"
-        );
+        document.documentElement.setAttribute("data-theme", mediaQuery.matches ? "dark" : "light");
       }
     };
     mediaQuery.addEventListener("change", handleChange);

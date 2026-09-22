@@ -47,9 +47,7 @@ export const RouterHead = component$(() => {
         <style
           key={s.key}
           {...s.props}
-          {...(s.props?.dangerouslySetInnerHTML
-            ? {}
-            : { dangerouslySetInnerHTML: s.style })}
+          {...(s.props?.dangerouslySetInnerHTML ? {} : { dangerouslySetInnerHTML: s.style })}
         />
       ))}
 
@@ -57,9 +55,7 @@ export const RouterHead = component$(() => {
         <script
           key={s.key}
           {...s.props}
-          {...(s.props?.dangerouslySetInnerHTML
-            ? {}
-            : { dangerouslySetInnerHTML: s.script })}
+          {...(s.props?.dangerouslySetInnerHTML ? {} : { dangerouslySetInnerHTML: s.script })}
         />
       ))}
     </>

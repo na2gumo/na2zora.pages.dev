@@ -8,8 +8,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, "..");
 
 // 共通で常に含める基本ASCII文字（記号・英数字など）
-const BASE_CHARS =
-  " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+const BASE_CHARS = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
 
 function getUniqueChars(text: string): string {
   const set = new Set(Array.from(text));
@@ -36,9 +35,7 @@ function charsToUnicodeRange(chars: string): string {
       if (start === prev) {
         ranges.push(`U+${start.toString(16).toUpperCase()}`);
       } else {
-        ranges.push(
-          `U+${start.toString(16).toUpperCase()}-${prev.toString(16).toUpperCase()}`
-        );
+        ranges.push(`U+${start.toString(16).toUpperCase()}-${prev.toString(16).toUpperCase()}`);
       }
       start = curr;
       prev = curr;
@@ -49,9 +46,7 @@ function charsToUnicodeRange(chars: string): string {
     if (start === prev) {
       ranges.push(`U+${start.toString(16).toUpperCase()}`);
     } else {
-      ranges.push(
-        `U+${start.toString(16).toUpperCase()}-${prev.toString(16).toUpperCase()}`
-      );
+      ranges.push(`U+${start.toString(16).toUpperCase()}-${prev.toString(16).toUpperCase()}`);
     }
   }
 
@@ -138,7 +133,7 @@ async function main() {
     let combinedCss = existingCss + "\n" + geistCss;
     combinedCss = combinedCss.replace(
       /src: url\(".*?\/(BIZUDPGothic\.woff2|GeistMono\.woff2)"\)/g,
-      `src: url("/${outDir.replace(/^public\//, "")}/$1")`
+      `src: url("/${outDir.replace(/^public\//, "")}/$1")`,
     );
 
     fs.writeFileSync(path.join(rootDir, cssPath), combinedCss, "utf-8");
