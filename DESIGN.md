@@ -106,7 +106,7 @@ z-index の順（下から）:
 - `(pointer: fine)` かつ reduced-motion でないときだけ。ネイティブカーソルは**消さない**（追加の照準として出す）
 - 24px の正方形の四隅にだけ 2px のライムの L 字（照準）。`mix-blend-mode: difference` は使わない（ライムのまま見せる）
 - マウスに `lerp 0.2` で追従（requestAnimationFrame）。中心にはつかず、ポインタ位置に中心を合わせる
-- `a, button, summary, [data-cursor]` に乗ると 44px に広がり、色がピンク、45° 回転。リンクなら右下に mono で `OPEN` の小さいラベル
+- `a, button, summary, [data-cursor]` に乗ると 44px に広がり、白（`--ink`）にピンクのにじみを付けて 45° 回転。リンクなら右下に mono で `OPEN` の小さいラベル
 - mousedown で 0.8 倍に縮む
 
 ### 2.2 HUD ヘッダー（`src/components/hud/hud.tsx`）
