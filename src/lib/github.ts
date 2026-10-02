@@ -11,6 +11,10 @@ export interface GitHubActivityItem {
   repoName: string;
   repoUrl: string;
   date: string;
+  /** イベント発生時刻（ISO 8601） */
+  createdAt: string;
+  /** Push の場合のコミット数 */
+  count?: number;
   detail?: string;
   targetUrl?: string;
   detailsList?: ActivityDetailItem[];
@@ -20,10 +24,17 @@ export interface GitHubActivityItem {
  * 複数の GitHub イベント（特に同じリポジトリ・同じ日への PushEvent）を
  * 1 つのアクティビティにまとめ、コミット一覧や詳細を detailsList に保持する。
  */
-export function aggregateGitHubEvents(events: any[]): GitHubActivityItem[] {
+export function aggregateGitHubEvents(
+  events: any[],
+  recentCommitsByRepo: Record<string, any[]> = {}
+): GitHubActivityItem[] {
   const aggregated: GitHubActivityItem[] = [];
+  // Events API は時系列順で返らないことがあるので新しい順に並べ直す
+  const sorted = [...events].sort(
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  );
 
-  for (const event of events) {
+  for (const event of sorted) {
     const rawDate = event.created_at;
     const dateObj = new Date(rawDate);
     const date = !isNaN(dateObj.getTime())
@@ -38,10 +49,10 @@ export function aggregateGitHubEvents(events: any[]): GitHubActivityItem[] {
     if (type === "PushEvent") {
       const branch = (payload.ref || "").replace("refs/heads/", "");
       const commitList: any[] = payload.commits || [];
-      const commitCount = commitList.length > 0 ? commitList.length : (payload.size ?? (payload.distinct_size ?? 1));
+      let commitCount = commitList.length > 0 ? commitList.length : (payload.size ?? (payload.distinct_size ?? 1));
 
       // コミット詳細リストの生成（payload.commits にあればそれを利用）
-      const details: ActivityDetailItem[] = commitList.map((c) => ({
+      let details: ActivityDetailItem[] = commitList.map((c) => ({
         message: c.message ? c.message.split("\n")[0] : "Commit",
         sha: c.sha ? c.sha.slice(0, 7) : undefined,
         url: c.url
@@ -60,11 +71,6 @@ export function aggregateGitHubEvents(events: any[]): GitHubActivityItem[] {
       );
 
       if (existing) {
-        const currentCountMatch = existing.actionText.match(/\d+/);
-        const currentCount = currentCountMatch ? parseInt(currentCountMatch[0], 10) : 1;
-        const newCount = currentCount + commitCount;
-        existing.actionText = `Made ${newCount} commits to`;
-
         if (!existing.detailsList) {
           existing.detailsList = [];
         }
@@ -77,10 +83,34 @@ export function aggregateGitHubEvents(events: any[]): GitHubActivityItem[] {
         );
         existing.detailsList = uniqueDetails;
 
+        // コミット一覧が取れていればその件数、なければ Push ごとに加算
+        const newCount =
+          uniqueDetails.length > 0 ? uniqueDetails.length : (existing.count ?? 1) + commitCount;
+        existing.count = newCount;
+        existing.actionText = `Made ${newCount} ${newCount === 1 ? "commit" : "commits"} to`;
+
         if (existing.detailsList.length > 0 && !existing.detail) {
           existing.detail = existing.detailsList[0].message;
         }
         continue;
+      }
+
+      // payload.commits が空の場合、渡された recentCommitsByRepo から同日のコミットを補完
+      if (details.length === 0 && recentCommitsByRepo[repoName]) {
+        const repoCommits = recentCommitsByRepo[repoName];
+        const dayCommits = repoCommits.filter((c: any) => {
+          const cDate = c.commit?.committer?.date || c.commit?.author?.date || "";
+          return cDate.startsWith(date);
+        });
+
+        if (dayCommits.length > 0) {
+          commitCount = Math.max(commitCount, dayCommits.length);
+          details = dayCommits.map((c: any) => ({
+            message: (c.commit?.message || "").split("\n")[0] || "Commit",
+            sha: (c.sha || "").slice(0, 7),
+            url: c.html_url || `${repoUrl}/commit/${c.sha}`,
+          }));
+        }
       }
 
       // 新規 Push アイテム
@@ -91,6 +121,8 @@ export function aggregateGitHubEvents(events: any[]): GitHubActivityItem[] {
         repoName: branch ? `${repoName} (${branch})` : repoName,
         repoUrl: branch ? `${repoUrl}/tree/${branch}` : repoUrl,
         date,
+        createdAt: rawDate,
+        count: commitCount,
         detail: details[0]?.message,
         targetUrl: branch ? `${repoUrl}/tree/${branch}` : repoUrl,
         detailsList: details.length > 0 ? details : undefined,
@@ -108,6 +140,7 @@ export function aggregateGitHubEvents(events: any[]): GitHubActivityItem[] {
         repoName,
         repoUrl,
         date,
+        createdAt: rawDate,
         detail: pr?.title,
         targetUrl: pr?.html_url || `${repoUrl}/pull/${payload.number}`,
         detailsList: pr?.title
@@ -127,6 +160,7 @@ export function aggregateGitHubEvents(events: any[]): GitHubActivityItem[] {
         repoName,
         repoUrl,
         date,
+        createdAt: rawDate,
         detail: issue?.title,
         targetUrl: issue?.html_url || `${repoUrl}/issues/${issue?.number}`,
         detailsList: issue?.title
@@ -146,6 +180,7 @@ export function aggregateGitHubEvents(events: any[]): GitHubActivityItem[] {
         repoName,
         repoUrl,
         date,
+        createdAt: rawDate,
         detail: payload.description,
         targetUrl: ref && refType === "branch" ? `${repoUrl}/tree/${ref}` : repoUrl,
       });
@@ -160,6 +195,7 @@ export function aggregateGitHubEvents(events: any[]): GitHubActivityItem[] {
         repoName,
         repoUrl,
         date,
+        createdAt: rawDate,
         targetUrl: repoUrl,
       });
       continue;
@@ -174,6 +210,7 @@ export function aggregateGitHubEvents(events: any[]): GitHubActivityItem[] {
         repoName,
         repoUrl,
         date,
+        createdAt: rawDate,
         detail: forkee?.full_name ? `→ ${forkee.full_name}` : undefined,
         targetUrl: forkee?.html_url || repoUrl,
       });
@@ -188,6 +225,7 @@ export function aggregateGitHubEvents(events: any[]): GitHubActivityItem[] {
         repoName,
         repoUrl,
         date,
+        createdAt: rawDate,
         targetUrl: repoUrl,
       });
       continue;
@@ -201,6 +239,7 @@ export function aggregateGitHubEvents(events: any[]): GitHubActivityItem[] {
         repoName,
         repoUrl,
         date,
+        createdAt: rawDate,
         detail: payload.release?.name,
         targetUrl: payload.release?.html_url || `${repoUrl}/releases`,
       });
@@ -215,6 +254,7 @@ export function aggregateGitHubEvents(events: any[]): GitHubActivityItem[] {
         repoName,
         repoUrl,
         date,
+        createdAt: rawDate,
         detail: payload.comment?.body?.slice(0, 100),
         targetUrl: payload.comment?.html_url,
       });
@@ -230,11 +270,30 @@ export function aggregateGitHubEvents(events: any[]): GitHubActivityItem[] {
       repoName,
       repoUrl,
       date,
+      createdAt: rawDate,
       targetUrl: repoUrl,
     });
   }
 
   return aggregated;
+}
+
+export interface GitHubSky {
+  /** 取得に成功したかどうか（失敗時は天気を決めない） */
+  ok: boolean;
+  /** 新しい順のアクティビティ */
+  items: GitHubActivityItem[];
+  /** 直近 7 日間の Push 回数（空模様の判定に使う） */
+  pushesThisWeek: number;
+}
+
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
+/** 直近 7 日間の PushEvent の数を数える */
+export function countRecentPushes(events: any[], now = Date.now()): number {
+  return events.filter(
+    (e) => e.type === "PushEvent" && now - new Date(e.created_at).getTime() < WEEK_MS
+  ).length;
 }
 
 /**
@@ -247,15 +306,16 @@ export function aggregateGitHubEvents(events: any[]): GitHubActivityItem[] {
 export async function fetchGitHubActivitiesWithCache(
   env?: Record<string, any>,
   cacheTtlSeconds: number = 600
-): Promise<GitHubActivityItem[]> {
+): Promise<GitHubSky> {
   const kv = env?.KV_CACHE || env?.GITHUB_CACHE || env?.KV;
-  const cacheKey = "github_activities_v1";
+  const cacheKey = "github_sky_v2";
+  const failed: GitHubSky = { ok: false, items: [], pushesThisWeek: 0 };
 
   // 1. KV からキャッシュ取得を試みる
   if (kv && typeof kv.get === "function") {
     try {
       const cached = await kv.get(cacheKey, "json");
-      if (cached && Array.isArray(cached) && cached.length > 0) {
+      if (cached && cached.ok && Array.isArray(cached.items)) {
         return cached;
       }
     } catch {
@@ -276,26 +336,31 @@ export async function fetchGitHubActivitiesWithCache(
       headers.Authorization = `Bearer ${token}`;
     }
 
-    const eventsRes = await fetch(
-      "https://api.github.com/users/na2gumo/events/public?per_page=30",
-      { headers }
-    );
+    const [eventsRes, commitsRes] = await Promise.allSettled([
+      fetch("https://api.github.com/users/na2gumo/events/public?per_page=100", { headers }),
+      fetch("https://api.github.com/repos/na2gumo/na2zora.pages.dev/commits?per_page=50", { headers }),
+    ]);
 
-    let events: any[] = [];
-    if (eventsRes.ok) {
-      events = await eventsRes.json().catch(() => []);
+    if (eventsRes.status !== "fulfilled" || !eventsRes.value.ok) {
+      return failed;
+    }
+    const events: any[] = await eventsRes.value.json();
+
+    const recentCommitsByRepo: Record<string, any[]> = {};
+    if (commitsRes.status === "fulfilled" && commitsRes.value.ok) {
+      recentCommitsByRepo["na2gumo/na2zora.pages.dev"] = await commitsRes.value.json();
     }
 
-    if (events.length === 0) {
-      return [];
-    }
-
-    const aggregated = aggregateGitHubEvents(events).slice(0, 5);
+    const result: GitHubSky = {
+      ok: true,
+      items: aggregateGitHubEvents(events, recentCommitsByRepo).slice(0, 12),
+      pushesThisWeek: countRecentPushes(events),
+    };
 
     // 3. KV が利用可能なら結果をキャッシュ保存（expirationTtl 指定）
-    if (kv && typeof kv.put === "function" && aggregated.length > 0) {
+    if (kv && typeof kv.put === "function") {
       try {
-        await kv.put(cacheKey, JSON.stringify(aggregated), {
+        await kv.put(cacheKey, JSON.stringify(result), {
           expirationTtl: Math.max(cacheTtlSeconds, 60), // Cloudflare KV requires >= 60 seconds
         });
       } catch {
@@ -303,8 +368,8 @@ export async function fetchGitHubActivitiesWithCache(
       }
     }
 
-    return aggregated;
+    return result;
   } catch {
-    return [];
+    return failed;
   }
 }

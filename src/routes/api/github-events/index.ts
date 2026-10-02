@@ -6,7 +6,7 @@ export const onGet: RequestHandler = async ({ send, headers, platform }) => {
   try {
     const env = (platform as PlatformCloudflarePages | undefined)?.env;
     // 10分（600秒）キャッシュ
-    const activities = await fetchGitHubActivitiesWithCache(env, 600);
+    const { items: activities } = await fetchGitHubActivitiesWithCache(env, 600);
 
     headers.set("Content-Type", "application/json; charset=utf-8");
     headers.set("Cache-Control", "public, max-age=60, s-maxage=300");

@@ -1,0 +1,91 @@
+:root {
+  --font-sans: "BIZ UDPGothic", "BIZ UDGothic", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --font-serif: "Shippori Mincho", "Hiragino Mincho ProN", "Yu Mincho", serif;
+  --font-pixel: "DotGothic16", var(--font-mono);
+  // Geist Mono には和文がないので、日付などの和文は本文フォントで出す
+  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "BIZ UDPGothic", monospace;
+
+  // 12:00 の空。JS が動く前（SSR 直後）もこの色で描かれる
+  --sky-top: #1a5ed6;
+  --sky-mid: #3c92ee;
+  --sky-low: #b4dcff;
+  --cloud-hi: #ffffff;
+  --cloud-lo: #b3c7e4;
+  --night: 0;
+  --dusk: 0;
+  --sun-x: 70vw;
+  --sun-y: 11vh;
+  --sun-o: 1;
+  --sun-color: #fff8e1;
+  --moon-x: 13vw;
+  --moon-y: 104vh;
+  --moon-o: 0;
+
+  --ink-shadow: 0 2px 18px rgb(8 24 64 / 0.28);
+  --glass: rgb(255 255 255 / 0.14);
+  --glass-border: rgb(255 255 255 / 0.28);
+  --gutter: clamp(16px, 5vw, 64px);
+
+  color-scheme: dark;
+}
+
+html {
+  background: var(--sky-top);
+  scrollbar-color: rgb(255 255 255 / 0.35) transparent;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: #fff;
+  background: transparent;
+  line-height: 1.75;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+  text-underline-offset: 3px;
+}
+
+:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+code {
+  font-family: var(--font-mono);
+}
+
+.weather-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  margin: 0;
+  padding: 0.3em 0.9em;
+  border-radius: 999px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  white-space: nowrap;
+
+  &__sub {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    opacity: 0.75;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

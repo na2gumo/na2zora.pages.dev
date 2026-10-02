@@ -1,141 +1,120 @@
 import { component$ } from "@builder.io/qwik";
-import { type DocumentHead, routeLoader$ } from "@builder.io/qwik-city";
-import type { PlatformCloudflarePages } from "@builder.io/qwik-city/middleware/cloudflare-pages";
-import { fetchGitHubActivitiesWithCache, type GitHubActivityItem } from "../lib/github";
+import type { DocumentHead } from "@builder.io/qwik-city";
+import { Cloud } from "../components/cloud/cloud";
+import { Constellation } from "../components/constellation/constellation";
+import { Hotbar } from "../components/hotbar/hotbar";
+import { ProfileCard } from "../components/profile-card/profile-card";
+import { weatherFromPushes } from "../lib/sky";
+import { useGitHubSky } from "./layout";
 
-export const useGitHubActivities = routeLoader$<GitHubActivityItem[]>(async (event) => {
-  // Cloudflare Pages の env（KV バインディング）を取得
-  const platform = event.platform as PlatformCloudflarePages | undefined;
-  // 15分（900秒）キャッシュ
-  return await fetchGitHubActivitiesWithCache(platform?.env, 900);
-});
+// 電線: 電柱の腕木（右上）から画面の左へ垂れ下がる
+const WIRES = [
+  "M 88.6 7.4 Q 46 26 -2 17",
+  "M 91 7.4 Q 50 22 -2 11.5",
+  "M 94.2 7.4 Q 56 19 -2 6.5",
+  "M 89.6 11.8 Q 44 28 -2 21",
+  "M 95.4 11.8 Q 99 13.5 102 13",
+  "M 96.4 7.4 Q 99.5 9 102 8.5",
+];
 
 export default component$(() => {
-  const githubActivities = useGitHubActivities();
+  const github = useGitHubSky();
+  const { ok, items, pushesThisWeek } = github.value;
+  const weather = weatherFromPushes(ok, pushesThisWeek);
+  const weatherText = ok
+    ? `今週の空模様 ${weather.icon} ${weather.label}`
+    : "今週の空模様 観測できず";
 
   return (
-    <div class="portfolio-home">
-      <div class="portfolio-grid">
-        {/* 左カラム: Hero, About, Skills */}
-        <div class="portfolio-left">
-          {/* ヒーローセクション */}
-          <section class="hero-section">
-            <div class="avatar-wrapper">
-              <picture>
-                <source srcset="/avatar.avif" type="image/avif" />
-                <img
-                  src="https://avatars.githubusercontent.com/u/266047745?v=4"
-                  alt="なつぐも (na2gumo)"
-                  width="128"
-                  height="128"
-                  class="avatar"
-                  loading="eager"
-                />
-              </picture>
-            </div>
-            <h1 class="hero-name">なつぐも</h1>
-            <p class="hero-handle">@na2gumo</p>
-            <p class="hero-tagline">夏空を君と見上げたあの日を、私はまだ覚えている。</p>
-          </section>
+    <>
+      {/* 12:00 ── 入道雲の下で */}
+      <section class="hero" data-sky-time="12" aria-labelledby="hero-name">
+        <svg class="hero__wires" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+          {WIRES.map((d) => (
+            <path key={d} d={d} />
+          ))}
+        </svg>
+        <Cloud variant="tower" class="hero__cloud" />
+        <div class="hero__pole" aria-hidden="true" />
+        <div class="hero__arms" aria-hidden="true" />
 
-          {/* About セクション */}
-          <section class="section">
-            <h2>About</h2>
-            <p>VRChatに生息している学生です。最近はMinecraftにも手を付けたり。</p>
-          </section>
-
-          {/* Skills / Interests セクション */}
-          <section class="section">
-            <h2>Skills & Interests</h2>
-            <div class="skills-grid">
-              <span class="skill-tag">Web Dev</span>
-              <span class="skill-tag">Unity</span>
-              <span class="skill-tag">Linux</span>
-              <span class="skill-tag">CyberSecurity</span>
-              <span class="skill-tag">Privacy</span>
-            </div>
-          </section>
+        <div class="hero__inner">
+          <h1 id="hero-name" class="hero__name">
+            なつぐも
+          </h1>
+          <div class="hero__meta">
+            <picture>
+              <source srcset="/avatar.avif" type="image/avif" />
+              <img
+                class="hero__avatar"
+                src="https://avatars.githubusercontent.com/u/266047745?v=4"
+                alt=""
+                width="44"
+                height="44"
+                loading="eager"
+              />
+            </picture>
+            <span class="hero__handle">@na2gumo</span>
+            <span class="weather-chip">{weatherText}</span>
+          </div>
         </div>
 
-        {/* 右カラム: GitHub Activity */}
-        <div class="portfolio-right">
-          {/* GitHub Activity セクション */}
-          <section class="section">
-            <h2>Recent GitHub Activity</h2>
+        <p class="hero__tagline">
+          夏空を君と見上げたあの日を、
+          <br />
+          私はまだ覚えている。
+        </p>
 
-            {githubActivities.value.length === 0 ? (
-              <p style={{ color: "var(--color-text-muted)", fontSize: "0.9rem" }}>
-                No recent activity found or unable to fetch GitHub events.
-              </p>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
-                {githubActivities.value.map((activity) => (
-                  <details key={activity.id} class="activity-card">
-                    <summary class="activity-summary">
-                      <div class="activity-header">
-                        <time style={{ color: "var(--color-text-muted)" }}>{activity.date}</time>
-                      </div>
-                      <div class="activity-title">
-                        <span style={{ marginRight: "0.4rem" }}>{activity.actionText}</span>
-                        <a
-                          href={activity.targetUrl || activity.repoUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick$={(e) => e.stopPropagation()}
-                        >
-                          {activity.repoName}
-                        </a>
-                      </div>
-                    </summary>
+        <p class="hero__cue" aria-hidden="true">
+          スクロールすると、日が暮れていきます
+        </p>
+      </section>
 
-                    {activity.detailsList && activity.detailsList.length > 0 ? (
-                      <div class="activity-expanded-details">
-                        <ul class="activity-commits-list">
-                          {activity.detailsList.map((item, idx) => (
-                            <li key={idx} class="activity-commit-item">
-                              {item.sha && <span class="commit-sha">{item.sha}</span>}
-                              <span class="commit-msg">
-                                {item.url ? (
-                                  <a href={item.url} target="_blank" rel="noopener noreferrer">
-                                    {item.message}
-                                  </a>
-                                ) : (
-                                  item.message
-                                )}
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    ) : activity.detail ? (
-                      <div class="activity-expanded-details">
-                        <p class="activity-detail">{activity.detail}</p>
-                      </div>
-                    ) : null}
-                  </details>
-                ))}
+      {/* 15:00 ── プロフィール */}
+      <section class="chapter chapter--profile" data-sky-time="15" aria-labelledby="h-profile">
+        <header class="chapter__head">
+          <p class="chapter__time">15:00</p>
+          <h2 id="h-profile" class="chapter__title">
+            プロフィール
+          </h2>
+          <p class="chapter__note">VRChat のプロフィール画面ふうに。</p>
+        </header>
+        <ProfileCard />
+      </section>
 
-                <div style={{ marginTop: "0.5rem" }}>
-                  <a
-                    href="https://github.com/na2gumo"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      color: "var(--color-text-muted)",
-                      fontSize: "0.875rem",
-                      textDecoration: "none",
-                    }}
-                    class="activity-view-all"
-                  >
-                    View all →
-                  </a>
-                </div>
-              </div>
-            )}
-          </section>
-        </div>
-      </div>
-    </div>
+      {/* 18:00 ── もちもの */}
+      <section class="chapter chapter--items" data-sky-time="18" aria-labelledby="h-items">
+        <header class="chapter__head">
+          <p class="chapter__time">18:00</p>
+          <h2 id="h-items" class="chapter__title">
+            もちもの
+          </h2>
+          <p class="chapter__note">クリックか 1〜9 キーで持ち替えられます。</p>
+        </header>
+        <Hotbar level={pushesThisWeek} />
+      </section>
+
+      {/* 21:00 ── なつぐも座 */}
+      <section class="chapter chapter--stars" data-sky-time="21" aria-labelledby="h-stars">
+        <header class="chapter__head">
+          <p class="chapter__time">21:00</p>
+          <h2 id="h-stars" class="chapter__title">
+            なつぐも座
+          </h2>
+          <p class="chapter__note">
+            最近の GitHub での活動が星になりました。星を選ぶと、その日のことが読めます。
+          </p>
+          <p class="weather-chip">
+            {weatherText}
+            {ok && <span class="weather-chip__sub">push {pushesThisWeek}回</span>}
+          </p>
+        </header>
+        <Constellation items={items} />
+        <a class="chapter__more" href="https://github.com/na2gumo" target="_blank" rel="noopener noreferrer">
+          GitHub ですべて見る ↗
+        </a>
+      </section>
+    </>
   );
 });
 
@@ -144,7 +123,11 @@ export const head: DocumentHead = {
   meta: [
     {
       name: "description",
-      content: "Personal portfolio",
+      content: "なつぐも (na2gumo) のページ。スクロールすると、夏の一日が暮れていきます。",
+    },
+    {
+      name: "theme-color",
+      content: "#1a5ed6",
     },
   ],
 };

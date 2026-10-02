@@ -1,0 +1,154 @@
+// VRChat のプロフィール画面ふう
+
+.profile-card {
+  --accent: #43d9e8;
+
+  width: min(100%, 460px);
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgb(17 21 30 / 0.84);
+  border: 1px solid rgb(255 255 255 / 0.09);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 30px 80px -20px rgb(6 16 48 / 0.6);
+  color: #e6edf3;
+
+  &__banner {
+    position: relative;
+    height: 112px;
+    background:
+      radial-gradient(60% 90% at 78% 20%, rgb(255 255 255 / 0.55), transparent 60%),
+      linear-gradient(160deg, #1a5ed6 0%, #3c92ee 45%, #b8667f 80%, #ffae6a 100%);
+  }
+
+  &__banner-label {
+    position: absolute;
+    right: 14px;
+    bottom: 10px;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    opacity: 0.85;
+  }
+
+  &__head {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 0 22px;
+    margin-top: -40px;
+  }
+
+  &__avatar img {
+    display: block;
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    border: 4px solid rgb(17 21 30);
+    background: #11151e;
+  }
+
+  // 名前はバナーの下に出す
+  &__ident {
+    min-width: 0;
+    padding-top: 48px;
+  }
+
+  &__name {
+    margin: 0;
+    font-size: 1.45rem;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  &__status {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2px 8px;
+    margin: 2px 0 0;
+    font-size: 0.82rem;
+  }
+
+  &__dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #3ddc84;
+    box-shadow: 0 0 0 3px rgb(61 220 132 / 0.22);
+  }
+
+  &__status-label {
+    color: #3ddc84;
+    font-weight: 700;
+  }
+
+  &__status-desc {
+    color: #9aa7b4;
+  }
+
+  &__fields {
+    display: grid;
+    gap: 14px;
+    margin: 0;
+    padding: 20px 22px 24px;
+  }
+
+  &__field {
+    display: grid;
+    grid-template-columns: 6.5em 1fr;
+    align-items: baseline;
+    gap: 12px;
+    padding-top: 14px;
+    border-top: 1px solid rgb(255 255 255 / 0.07);
+
+    dt {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #8a98a7;
+    }
+
+    dd {
+      margin: 0;
+      font-size: 0.95rem;
+    }
+
+    &--bio {
+      grid-template-columns: 1fr;
+      gap: 6px;
+      border-top: 0;
+      padding-top: 0;
+
+      dd {
+        line-height: 1.9;
+      }
+    }
+  }
+
+  &__mono {
+    font-family: var(--font-mono);
+  }
+
+  &__chip {
+    display: inline-block;
+    padding: 2px 12px;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.07);
+    font-size: 0.85rem;
+
+    &--link {
+      color: var(--accent);
+      text-decoration: none;
+      border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+      transition: background 0.2s;
+
+      &:hover {
+        background: color-mix(in srgb, var(--accent) 16%, transparent);
+      }
+    }
+  }
+}

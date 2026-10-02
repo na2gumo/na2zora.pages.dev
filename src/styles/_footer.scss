@@ -1,0 +1,65 @@
+// 24:00 ── おやすみなさい
+
+.site-footer {
+  position: relative;
+  min-height: 100svh;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 14px;
+  padding: 12vh var(--gutter) 0;
+  text-align: center;
+
+  p {
+    margin: 0;
+  }
+
+  &__time {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    letter-spacing: 0.12em;
+    opacity: 0.75;
+  }
+
+  &__night {
+    font-family: var(--font-serif);
+    font-weight: 800;
+    font-size: clamp(2.6rem, 7vw, 5.2rem);
+    letter-spacing: 0.06em;
+    text-shadow: 0 0 40px rgb(160 180 255 / 0.25);
+  }
+
+  &__sub {
+    font-family: var(--font-serif);
+    font-size: 1.05rem;
+    letter-spacing: 0.12em;
+    opacity: 0.8;
+  }
+
+  &__again {
+    margin-top: 28px;
+    padding: 10px 22px;
+    border-radius: 999px;
+    border: 1px solid rgb(255 255 255 / 0.3);
+    background: rgb(255 255 255 / 0.06);
+    color: inherit;
+    font: inherit;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+
+    &:hover {
+      background: rgb(255 255 255 / 0.14);
+      border-color: rgb(255 255 255 / 0.6);
+    }
+  }
+
+  &__copy {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 24px;
+    font-size: 0.78rem;
+    opacity: 0.5;
+  }
+}

@@ -8,7 +8,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, "..");
 
 // 共通で常に含める基本ASCII文字（記号・英数字など）
-const BASE_CHARS = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+const BASE_CHARS =
+  " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
 
 function getUniqueChars(text: string): string {
   const set = new Set(Array.from(text));
@@ -35,7 +36,9 @@ function charsToUnicodeRange(chars: string): string {
       if (start === prev) {
         ranges.push(`U+${start.toString(16).toUpperCase()}`);
       } else {
-        ranges.push(`U+${start.toString(16).toUpperCase()}-${prev.toString(16).toUpperCase()}`);
+        ranges.push(
+          `U+${start.toString(16).toUpperCase()}-${prev.toString(16).toUpperCase()}`
+        );
       }
       start = curr;
       prev = curr;
@@ -46,7 +49,9 @@ function charsToUnicodeRange(chars: string): string {
     if (start === prev) {
       ranges.push(`U+${start.toString(16).toUpperCase()}`);
     } else {
-      ranges.push(`U+${start.toString(16).toUpperCase()}-${prev.toString(16).toUpperCase()}`);
+      ranges.push(
+        `U+${start.toString(16).toUpperCase()}-${prev.toString(16).toUpperCase()}`
+      );
     }
   }
 
@@ -88,55 +93,48 @@ async function main() {
 
   console.log(`Included unique characters: ${uniqueChars.length}`);
 
-  // BIZ UDPGothic (日本語 & 全般)
-  const bizConfig: GlyphtConfig = {
-    input: path.join(rootDir, "fonts/raw/BIZUDPGothic-Regular.ttf"),
-    outDir: outDirAbs,
-    outCssFile: path.join(rootDir, cssPath),
-    basePath: `/${outDir.replace(/^public\//, "")}/`,
-    formats: { woff2: true },
-    woff2Compression: 11,
-    settings: {
-      "BIZ UDPGothic": {
-        enableSubsetting: true,
-        includeCharacters: {
-          includeUnicodeRanges: unicodeRange,
-        },
-      },
-    },
+  // 和文フォントはソース中の文字だけ、Geist Mono は ASCII だけに絞る
+  const subsetBySource = {
+    enableSubsetting: true,
+    includeCharacters: { includeUnicodeRanges: unicodeRange },
   };
 
-  // Geist Mono (英数・等幅)
-  const geistConfig: GlyphtConfig = {
-    input: path.join(rootDir, "fonts/raw/GeistMono.ttf"),
-    outDir: outDirAbs,
-    outCssFile: path.join(rootDir, cssPath),
+  const config: GlyphtConfig = {
+    input: [
+      "fonts/raw/BIZUDPGothic-Regular.ttf",
+      "fonts/raw/ShipporiMincho-Regular.ttf",
+      "fonts/raw/ShipporiMincho-ExtraBold.ttf",
+      "fonts/raw/DotGothic16-Regular.ttf",
+      "fonts/raw/GeistMono.ttf",
+    ],
+    outDir,
+    outCssFile: cssPath,
     basePath: `/${outDir.replace(/^public\//, "")}/`,
     formats: { woff2: true },
     woff2Compression: 11,
     settings: {
+      // BIZ UDPGothic: 本文
+      "BIZ UDPGothic": subsetBySource,
+      // Shippori Mincho: 名前・タグラインなどの見出し
+      "Shippori Mincho": subsetBySource,
+      // DotGothic16: ホットバーなどのピクセル UI
+      DotGothic16: subsetBySource,
+      // Geist Mono: 英数・等幅
       "Geist Mono": {
         enableSubsetting: true,
-        includeCharacters: {
-          includeUnicodeRanges: "U+0020-007E",
-        },
+        includeCharacters: { includeUnicodeRanges: "U+0020-007E" },
       },
     },
   };
 
   try {
-    await build(bizConfig, rootDir);
-    const existingCss = fs.readFileSync(path.join(rootDir, cssPath), "utf-8");
-    await build(geistConfig, rootDir);
-    const geistCss = fs.readFileSync(path.join(rootDir, cssPath), "utf-8");
-
-    let combinedCss = existingCss + "\n" + geistCss;
-    combinedCss = combinedCss.replace(
-      /src: url\(".*?\/(BIZUDPGothic\.woff2|GeistMono\.woff2)"\)/g,
-      `src: url("/${outDir.replace(/^public\//, "")}/$1")`,
-    );
-
-    fs.writeFileSync(path.join(rootDir, cssPath), combinedCss, "utf-8");
+    await build(config, rootDir);
+    // glypht は basePath にファイルパスをそのまま連結するので、公開 URL に直す
+    const cssAbs = path.join(rootDir, cssPath);
+    const css = fs
+      .readFileSync(cssAbs, "utf-8")
+      .replace(/url\(".*?\/([^/"]+\.woff2)"\)/g, `url("/${outDir.replace(/^public\//, "")}/$1")`);
+    fs.writeFileSync(cssAbs, css, "utf-8");
   } catch (e) {
     console.warn("Font generation warning:", e);
   }
