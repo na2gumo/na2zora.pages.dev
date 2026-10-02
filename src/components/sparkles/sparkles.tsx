@@ -102,21 +102,15 @@ export const Sparkles = component$(() => {
       innerRadius: number,
     ) => {
       let rot = (Math.PI / 2) * 3;
-      let x = cx;
-      let y = cy;
       const step = Math.PI / spikes;
 
       c.beginPath();
       c.moveTo(cx, cy - outerRadius);
       for (let i = 0; i < spikes; i++) {
-        x = cx + Math.cos(rot) * outerRadius;
-        y = cy + Math.sin(rot) * outerRadius;
-        c.lineTo(x, y);
+        c.lineTo(cx + Math.cos(rot) * outerRadius, cy + Math.sin(rot) * outerRadius);
         rot += step;
 
-        x = cx + Math.cos(rot) * innerRadius;
-        y = cy + Math.sin(rot) * innerRadius;
-        c.lineTo(x, y);
+        c.lineTo(cx + Math.cos(rot) * innerRadius, cy + Math.sin(rot) * innerRadius);
         rot += step;
       }
       c.lineTo(cx, cy - outerRadius);
