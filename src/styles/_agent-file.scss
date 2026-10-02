@@ -1,0 +1,278 @@
+@use "b-mixins" as *;
+
+// CH.01 AGENT FILE（DESIGN §3.2）
+
+.dossier {
+  // data-reveal（clip-path のワイプ）は外側、ノッチは内側 .dossier__panel に分けて競合を避ける
+  &__panel {
+    --notch: 24px;
+    @include notch-panel(24px);
+    // reveal 前のスタンプ（scale 2.2）がページの横幅を押し広げないように
+    overflow: clip;
+  }
+
+  &__bar {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px 16px;
+    margin-inline: clamp(20px, 3vw, 40px);
+    padding: 14px 0 12px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  &__clearance {
+    color: var(--lime);
+  }
+
+  &__body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+    padding: clamp(20px, 3vw, 40px);
+  }
+
+  &__side {
+    width: min(100%, 280px);
+  }
+
+  &__photo-wrap {
+    position: relative;
+  }
+
+  // 証明写真: 正方形・ライムの 2px 枠・グレースケール
+  &__photo {
+    position: relative;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border: 2px solid var(--lime);
+    background: var(--panel-2);
+
+    img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: grayscale(1);
+      transition: filter 0.4s var(--ease-out);
+    }
+
+    // ホバーでカラーに戻る
+    &:hover img {
+      filter: grayscale(0);
+    }
+  }
+
+  // VERIFIED スタンプ。reveal(slam) が rotate を -14deg → -8deg に動かす
+  &__stamp {
+    position: absolute;
+    right: -10px;
+    bottom: -12px;
+    padding: 2px 10px;
+    border: 3px solid var(--orange);
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    line-height: 1.1;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--orange);
+    rotate: -8deg;
+    opacity: 0.92;
+    mix-blend-mode: screen;
+    pointer-events: none;
+  }
+
+  &__barcode {
+    height: 36px;
+    margin-top: 24px;
+    // 周期の違う 2 本を重ねて不規則なバーコードに見せる
+    background:
+      repeating-linear-gradient(90deg, var(--ink) 0 2px, transparent 2px 4px, var(--ink) 4px 5px, transparent 5px 8px),
+      repeating-linear-gradient(90deg, transparent 0 6px, var(--ink) 6px 9px, transparent 9px 13px);
+  }
+
+  &__id {
+    display: block;
+    margin-top: 8px;
+  }
+}
+
+// 属性テーブル
+.attrs {
+  margin: 0;
+
+  &__row {
+    position: relative;
+    display: grid;
+    grid-template-columns: 130px minmax(0, 1fr);
+    align-items: baseline;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+    transition: background-color 0.18s var(--ease-out);
+
+    dt,
+    dd {
+      margin: 0;
+      // 行ホバーで padding-left が動く見た目は translate で作る（レイアウトを動かさない）
+      transition:
+        translate 0.2s var(--ease-out),
+        color 0.18s var(--ease-out);
+    }
+
+    dd {
+      padding-right: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    // 左のライム線が scaleY で伸びる
+    &::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--lime);
+      transform: scaleY(0);
+      transform-origin: center;
+      transition: transform 0.2s var(--ease-out);
+    }
+
+    &:hover {
+      background: var(--panel-2);
+
+      &::before {
+        transform: scaleY(1);
+      }
+
+      dt,
+      dd {
+        translate: 12px 0;
+      }
+
+      dt {
+        color: var(--lime);
+      }
+    }
+  }
+
+  &__name {
+    font-family: var(--font-head, "Dela Gothic One", var(--font-sans));
+    font-size: 1.3rem;
+    line-height: 1.4;
+  }
+
+  &__handle {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: var(--dim);
+  }
+
+  &__link {
+    color: var(--cyan);
+    text-decoration: none;
+    transition: color 0.18s var(--ease-out);
+
+    &:hover,
+    &:focus-visible {
+      color: var(--lime);
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+  }
+}
+
+.bio {
+  margin-top: 28px;
+
+  &__text {
+    margin: 8px 0 0;
+    padding-left: 18px;
+    border-left: 3px solid var(--pink);
+    font-family: var(--font-sans);
+    font-size: 1.05rem;
+    line-height: 1.8;
+  }
+}
+
+// ステータス 3 枚
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
+  gap: 10px;
+  margin-top: 28px;
+}
+
+.stat {
+  --notch: 10px;
+  @include notch-panel(10px, var(--panel-2), var(--line));
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 14px 16px;
+
+  &__value {
+    font-family: var(--font-display);
+    font-size: 2.2rem;
+    line-height: 0.95;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+
+    &--lime {
+      color: var(--lime);
+    }
+
+    &--ink {
+      color: var(--ink);
+    }
+  }
+
+  // 取得失敗時は dim の `--`
+  &--dead &__value {
+    color: var(--dim);
+  }
+}
+
+.stat-wrap {
+  min-width: 0;
+}
+
+@media (min-width: 960px) {
+  .dossier__body {
+    grid-template-columns: 280px minmax(0, 1fr);
+    gap: 40px;
+  }
+}
+
+// 幅 360px でも github.com/na2gumo ↗ が途中で折れないよう、ラベル列を詰める
+@media (max-width: 479px) {
+  .attrs__row {
+    grid-template-columns: 84px minmax(0, 1fr);
+
+    dd {
+      padding-right: 0;
+    }
+  }
+
+  .attrs__link {
+    font-size: 0.92rem;
+    white-space: nowrap;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dossier__photo img,
+  .attrs__row,
+  .attrs__row dt,
+  .attrs__row dd,
+  .attrs__row::before,
+  .attrs__link {
+    transition: none;
+  }
+}

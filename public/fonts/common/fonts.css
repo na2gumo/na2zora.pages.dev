@@ -1,4 +1,13 @@
 @font-face {
+  font-family: "Anton";
+  font-display: swap;
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100;
+  src: url("/fonts/common/Anton.woff2") format("woff2");
+}
+
+@font-face {
   font-family: "BIZ UDPGothic";
   font-display: swap;
   font-style: normal;
@@ -8,12 +17,12 @@
 }
 
 @font-face {
-  font-family: "DotGothic16";
+  font-family: "Dela Gothic One";
   font-display: swap;
   font-style: normal;
   font-weight: 400;
   font-stretch: 100;
-  src: url("/fonts/common/DotGothic16.woff2") format("woff2");
+  src: url("/fonts/common/DelaGothicOne.woff2") format("woff2");
 }
 
 @font-face {
@@ -23,23 +32,5 @@
   font-weight: 100 900;
   font-stretch: 100;
   src: url("/fonts/common/GeistMono.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Shippori Mincho";
-  font-display: swap;
-  font-style: normal;
-  font-weight: 400;
-  font-stretch: 100;
-  src: url("/fonts/common/ShipporiMincho-Regular.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: "Shippori Mincho";
-  font-display: swap;
-  font-style: normal;
-  font-weight: 800;
-  font-stretch: 100;
-  src: url("/fonts/common/ShipporiMincho-ExtraBold.woff2") format("woff2");
 }
 

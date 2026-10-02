@@ -278,22 +278,29 @@ export function aggregateGitHubEvents(
   return aggregated;
 }
 
-export interface GitHubSky {
-  /** 取得に成功したかどうか（失敗時は天気を決めない） */
+export interface GitHubFeed {
+  /** 取得に成功したかどうか */
   ok: boolean;
   /** 新しい順のアクティビティ */
   items: GitHubActivityItem[];
-  /** 直近 7 日間の Push 回数（空模様の判定に使う） */
+  /** 直近 7 日間の Push 回数 */
   pushesThisWeek: number;
+  /** 直近 14 日間の 24 時間ごとの Push 回数（古い順） */
+  pushesByDay: number[];
 }
 
-const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+const DAY_MS = 24 * 60 * 60 * 1000;
+const HISTORY_DAYS = 14;
 
-/** 直近 7 日間の PushEvent の数を数える */
-export function countRecentPushes(events: any[], now = Date.now()): number {
-  return events.filter(
-    (e) => e.type === "PushEvent" && now - new Date(e.created_at).getTime() < WEEK_MS
-  ).length;
+/** 直近 14 日間の PushEvent を 24 時間ごとに数える（古い順） */
+export function countPushesByDay(events: any[], now = Date.now()): number[] {
+  const days = Array.from({ length: HISTORY_DAYS }, () => 0);
+  for (const e of events) {
+    if (e.type !== "PushEvent") continue;
+    const ago = Math.floor((now - new Date(e.created_at).getTime()) / DAY_MS);
+    if (ago >= 0 && ago < HISTORY_DAYS) days[HISTORY_DAYS - 1 - ago]++;
+  }
+  return days;
 }
 
 /**
@@ -306,16 +313,16 @@ export function countRecentPushes(events: any[], now = Date.now()): number {
 export async function fetchGitHubActivitiesWithCache(
   env?: Record<string, any>,
   cacheTtlSeconds: number = 600
-): Promise<GitHubSky> {
+): Promise<GitHubFeed> {
   const kv = env?.KV_CACHE || env?.GITHUB_CACHE || env?.KV;
-  const cacheKey = "github_sky_v2";
-  const failed: GitHubSky = { ok: false, items: [], pushesThisWeek: 0 };
+  const cacheKey = "github_feed_v3";
+  const failed: GitHubFeed = { ok: false, items: [], pushesThisWeek: 0, pushesByDay: [] };
 
   // 1. KV からキャッシュ取得を試みる
   if (kv && typeof kv.get === "function") {
     try {
       const cached = await kv.get(cacheKey, "json");
-      if (cached && cached.ok && Array.isArray(cached.items)) {
+      if (cached && cached.ok && Array.isArray(cached.items) && Array.isArray(cached.pushesByDay)) {
         return cached;
       }
     } catch {
@@ -351,11 +358,13 @@ export async function fetchGitHubActivitiesWithCache(
       recentCommitsByRepo["na2gumo/na2zora.pages.dev"] = await commitsRes.value.json();
     }
 
-    const result: GitHubSky = {
+    const result: GitHubFeed = {
       ok: true,
       items: aggregateGitHubEvents(events, recentCommitsByRepo).slice(0, 12),
-      pushesThisWeek: countRecentPushes(events),
+      pushesThisWeek: 0,
+      pushesByDay: countPushesByDay(events),
     };
+    result.pushesThisWeek = result.pushesByDay.slice(-7).reduce((a, b) => a + b, 0);
 
     // 3. KV が利用可能なら結果をキャッシュ保存（expirationTtl 指定）
     if (kv && typeof kv.put === "function") {

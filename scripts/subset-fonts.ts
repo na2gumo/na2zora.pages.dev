@@ -93,7 +93,7 @@ async function main() {
 
   console.log(`Included unique characters: ${uniqueChars.length}`);
 
-  // 和文フォントはソース中の文字だけ、Geist Mono は ASCII だけに絞る
+  // 和文フォントはソース中の文字だけ、Anton と Geist Mono は ASCII だけに絞る
   const subsetBySource = {
     enableSubsetting: true,
     includeCharacters: { includeUnicodeRanges: unicodeRange },
@@ -102,9 +102,8 @@ async function main() {
   const config: GlyphtConfig = {
     input: [
       "fonts/raw/BIZUDPGothic-Regular.ttf",
-      "fonts/raw/ShipporiMincho-Regular.ttf",
-      "fonts/raw/ShipporiMincho-ExtraBold.ttf",
-      "fonts/raw/DotGothic16-Regular.ttf",
+      "fonts/raw/DelaGothicOne-Regular.ttf",
+      "fonts/raw/Anton-Regular.ttf",
       "fonts/raw/GeistMono.ttf",
     ],
     outDir,
@@ -115,10 +114,13 @@ async function main() {
     settings: {
       // BIZ UDPGothic: 本文
       "BIZ UDPGothic": subsetBySource,
-      // Shippori Mincho: 名前・タグラインなどの見出し
-      "Shippori Mincho": subsetBySource,
-      // DotGothic16: ホットバーなどのピクセル UI
-      DotGothic16: subsetBySource,
+      // Dela Gothic One: 和文の見出し
+      "Dela Gothic One": subsetBySource,
+      // Anton: 英字の巨大な見出し
+      Anton: {
+        enableSubsetting: true,
+        includeCharacters: { includeUnicodeRanges: "U+0020-007E" },
+      },
       // Geist Mono: 英数・等幅
       "Geist Mono": {
         enableSubsetting: true,

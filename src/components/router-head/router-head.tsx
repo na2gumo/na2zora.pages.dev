@@ -2,6 +2,14 @@ import { component$ } from "@builder.io/qwik";
 import { useDocumentHead, useLocation } from "@builder.io/qwik-city";
 
 /**
+ * <head> の先頭寄りで同期実行するスクリプト。
+ *  - html.js: JS が動くときだけ [data-reveal] の隠し状態を当てるための印
+ *  - BOOT を出さない条件（起動済みフラグ / reduced-motion）なら html.booted と html.boot-done を付ける
+ *    （boot-done が付くまで、ヒーローの登場演出は待つ）
+ */
+const BOOT_SCRIPT = `(function(){var d=document.documentElement;d.classList.add("js");try{if(matchMedia("(prefers-reduced-motion: reduce)").matches||sessionStorage.getItem("na2zora:booted")){d.classList.add("booted","boot-done")}}catch(e){}})();`;
+
+/**
  * The RouterHead component is placed inside of the document `<head>` element.
  */
 export const RouterHead = component$(() => {
@@ -10,6 +18,7 @@ export const RouterHead = component$(() => {
 
   return (
     <>
+      <script dangerouslySetInnerHTML={BOOT_SCRIPT} />
       <title>{head.title}</title>
 
       <link rel="canonical" href={loc.url.href} />
@@ -18,14 +27,8 @@ export const RouterHead = component$(() => {
       <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
       {/* フォントの読み込み */}
       <link rel="stylesheet" href="/fonts/common/fonts.css" />
-      {/* ファーストビューの名前に使う明朝は先に取りにいく */}
-      <link
-        rel="preload"
-        href="/fonts/common/ShipporiMincho-ExtraBold.woff2"
-        as="font"
-        type="font/woff2"
-        crossOrigin="anonymous"
-      />
+      {/* ファーストビューの名前に使う Anton は先に取りにいく */}
+      <link rel="preload" href="/fonts/common/Anton.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
 
       {head.meta.map((m) => (
         <meta key={m.key} {...m} />

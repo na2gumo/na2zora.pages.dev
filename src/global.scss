@@ -1,10 +1,11 @@
 @use "kiso.css/kiso.css";
 @use "styles/base";
-@use "styles/sky";
-@use "styles/header";
+@use "styles/boot";
+@use "styles/hud";
+@use "styles/cursor";
 @use "styles/hero";
-@use "styles/chapter";
-@use "styles/profile-card";
-@use "styles/hotbar";
-@use "styles/constellation";
+@use "styles/section-head";
+@use "styles/agent-file";
+@use "styles/loadout";
+@use "styles/activity-log";
 @use "styles/footer";

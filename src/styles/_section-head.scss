@@ -1,0 +1,138 @@
+// セクション共通の外枠と見出し（DESIGN §3.0）
+
+// 3 つのチャプターセクション（agent / loadout / log）共通の外枠
+.ch-section {
+  box-sizing: border-box;
+  max-width: 1280px;
+  margin-inline: auto;
+  padding: clamp(96px, 16vh, 160px) var(--gutter);
+  // HUD（高さ 56px）の下に見出しが潜らないように
+  scroll-margin-top: 56px;
+}
+
+.section-head {
+  --num-size: clamp(6rem, 16vw, 13rem);
+  // Anton は行ボックスより字面が大きく、line-height を詰めると
+  // reveal の clip-path で上下が欠ける。padding を足して負の margin で相殺する
+  --clip-pad-y: 0.12em;
+  --clip-pad-x: 0.06em;
+
+  position: relative;
+  margin-bottom: clamp(32px, 5vw, 56px);
+
+  &__top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  &__num {
+    display: block;
+    font-family: var(--font-display);
+    font-size: var(--num-size);
+    line-height: 0.8;
+    text-transform: uppercase;
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--lime);
+    padding: var(--clip-pad-y) var(--clip-pad-x);
+    margin: calc(var(--clip-pad-y) * -1) calc(var(--clip-pad-x) * -1);
+    user-select: none;
+  }
+
+  &__meta {
+    flex: 0 1 auto;
+    max-width: 60%;
+    padding-top: 8px;
+    text-align: right;
+    overflow-wrap: anywhere;
+  }
+
+  &__title {
+    position: relative;
+    z-index: 1;
+    // タイトルが番号の下半分に重なる。番号側の em 基準で戻す
+    margin: calc(var(--num-size) * -0.45 - var(--clip-pad-y)) calc(var(--clip-pad-x) * -1) calc(var(--clip-pad-y) * -1);
+    padding: var(--clip-pad-y) var(--clip-pad-x);
+    font-family: var(--font-display);
+    font-size: clamp(2.6rem, 7vw, 5.5rem);
+    font-weight: 400;
+    line-height: 0.9;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    color: var(--ink);
+    overflow-wrap: anywhere;
+  }
+
+  &__sub {
+    position: relative;
+    z-index: 1;
+    // 番号の字面は行ボックスより下へはみ出すので、その分だけ離す
+    margin: calc(var(--num-size) * 0.1) 0 0;
+    font-family: var(--font-head, "Dela Gothic One", var(--font-sans));
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--dim);
+  }
+
+  &__slash {
+    margin-right: 0.3em;
+    color: var(--lime);
+  }
+
+  // 下線: 1px の罫線の上に 120px のライムが重なり、reveal で伸びる
+  // data-reveal 既定（clip-path のワイプ）はここでは使わないので、特異度を上げて打ち消す
+  .section-head__rule[data-reveal] {
+    position: relative;
+    height: 1px;
+    margin-top: 22px;
+    background: var(--line);
+    opacity: 1;
+    translate: none;
+    scale: none;
+    rotate: none;
+    clip-path: none;
+    transition: none;
+
+    &::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: -1px;
+      width: 120px;
+      height: 3px;
+      background: var(--lime);
+      transform-origin: left center;
+    }
+  }
+
+  .section-head__rule[data-reveal]::after {
+    transform: scaleX(1);
+  }
+}
+
+// JS が動いているときだけ「0 → 120px」の初期状態を当てる
+.js .section-head .section-head__rule[data-reveal]::after {
+  transform: scaleX(0);
+  transition: transform 0.7s var(--ease-out) calc(var(--i, 0) * 70ms);
+}
+
+.js .section-head .section-head__rule[data-reveal].is-in::after {
+  transform: scaleX(1);
+}
+
+// 狭い幅では meta を小さくして、タイトルとぶつからないようにする
+@media (max-width: 599px) {
+  .section-head__meta {
+    font-size: 0.65rem;
+    line-height: 1.4;
+    letter-spacing: 0.06em;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js .section-head .section-head__rule[data-reveal]::after {
+    transform: scaleX(1);
+    transition: none;
+  }
+}

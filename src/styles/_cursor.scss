@@ -1,0 +1,80 @@
+// ============================================================
+// カーソル: 四隅だけの照準（ライム）
+// ============================================================
+
+.cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 95;
+  width: 24px;
+  height: 24px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+  will-change: transform;
+
+  &.is-on {
+    opacity: 1;
+  }
+
+  // 四隅に 2px の L 字（background の linear-gradient 8 本）
+  &__reticle {
+    --c: var(--lime);
+
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background:
+      linear-gradient(var(--c), var(--c)) top left / 8px 2px no-repeat,
+      linear-gradient(var(--c), var(--c)) top left / 2px 8px no-repeat,
+      linear-gradient(var(--c), var(--c)) top right / 8px 2px no-repeat,
+      linear-gradient(var(--c), var(--c)) top right / 2px 8px no-repeat,
+      linear-gradient(var(--c), var(--c)) bottom left / 8px 2px no-repeat,
+      linear-gradient(var(--c), var(--c)) bottom left / 2px 8px no-repeat,
+      linear-gradient(var(--c), var(--c)) bottom right / 8px 2px no-repeat,
+      linear-gradient(var(--c), var(--c)) bottom right / 2px 8px no-repeat;
+    // ピンクのボタンの上でも見えるよう、細い影を付ける
+    filter: drop-shadow(0 0 1px rgb(0 0 0 / 0.9));
+    transition:
+      scale 0.2s var(--ease-pop),
+      rotate 0.2s var(--ease-pop);
+  }
+
+  // リンクなどの上: 44px（24px の約 1.83 倍）に広がり、ピンクになって 45° 回る
+  &.is-hover &__reticle {
+    --c: var(--pink);
+
+    scale: 1.83;
+    rotate: 45deg;
+  }
+
+  // mousedown で 0.8 倍
+  &.is-down &__reticle {
+    scale: 0.8;
+  }
+
+  &.is-hover.is-down &__reticle {
+    scale: 1.46;
+  }
+
+  // リンクの上では右下に小さく OPEN（照準の拡大・回転とは別に置く）
+  &__label {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: calc(100% + 8px);
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    line-height: 1;
+    white-space: nowrap;
+    color: var(--pink);
+    text-shadow: 0 0 3px rgb(0 0 0 / 0.9);
+    opacity: 0;
+    transition: opacity 0.18s;
+  }
+
+  &.is-link &__label {
+    opacity: 1;
+  }
+}

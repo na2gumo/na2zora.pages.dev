@@ -1,65 +1,125 @@
-// 24:00 ── おやすみなさい
+// ============================================================
+// フッター: END OF TRANSMISSION
+// ============================================================
 
-.site-footer {
+.footer {
   position: relative;
-  min-height: 100svh;
-  display: grid;
-  place-content: center;
-  justify-items: center;
-  gap: 14px;
-  padding: 12vh var(--gutter) 0;
-  text-align: center;
+  margin-top: 0;
+  overflow-x: clip;
 
-  p {
-    margin: 0;
+  // ---- 巨大テロップ ----
+  &__ticker {
+    display: flex;
+    overflow: hidden;
+    padding-block: 3vw 1vw;
+    white-space: nowrap;
+    user-select: none;
   }
 
-  &__time {
-    font-family: var(--font-mono);
-    font-size: 0.9rem;
-    letter-spacing: 0.12em;
-    opacity: 0.75;
+  // 同じ文字を 2 つ並べて、半分（-50%）まで動かしてループさせる
+  &__ticker-track {
+    display: flex;
+    flex: none;
+    width: max-content;
+    animation: tape-left 40s linear infinite;
   }
 
-  &__night {
-    font-family: var(--font-serif);
-    font-weight: 800;
-    font-size: clamp(2.6rem, 7vw, 5.2rem);
-    letter-spacing: 0.06em;
-    text-shadow: 0 0 40px rgb(160 180 255 / 0.25);
-  }
+  &__ticker-text {
+    flex: none;
+    font-family: var(--font-display);
+    font-size: 15vw;
+    line-height: 0.95;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--lime);
+    transition: color 0.3s var(--ease-out);
 
-  &__sub {
-    font-family: var(--font-serif);
-    font-size: 1.05rem;
-    letter-spacing: 0.12em;
-    opacity: 0.8;
-  }
-
-  &__again {
-    margin-top: 28px;
-    padding: 10px 22px;
-    border-radius: 999px;
-    border: 1px solid rgb(255 255 255 / 0.3);
-    background: rgb(255 255 255 / 0.06);
-    color: inherit;
-    font: inherit;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: background 0.2s, border-color 0.2s;
-
-    &:hover {
-      background: rgb(255 255 255 / 0.14);
-      border-color: rgb(255 255 255 / 0.6);
+    // 星はテキストの塗りが透明なので、枠線だけにする
+    .star {
+      width: 0.5em;
+      height: 0.5em;
+      background: var(--lime);
+      margin-inline: 0.35em;
+      vertical-align: 0.12em;
     }
   }
 
-  &__copy {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 24px;
-    font-size: 0.78rem;
-    opacity: 0.5;
+  &__ticker:hover &__ticker-text {
+    color: var(--lime);
+  }
+
+  // ---- 下段 ----
+  &__body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+    align-items: center;
+    max-width: 1280px;
+    margin-inline: auto;
+    padding: 48px var(--gutter) 32px;
+
+    @media (min-width: 720px) {
+      grid-template-columns: 1fr auto 1fr;
+    }
+  }
+
+  &__line {
+    margin: 0;
+    line-height: 1.9;
+    letter-spacing: 0.1em;
+    text-transform: none;
+
+    &--ink {
+      color: var(--ink);
+    }
+  }
+
+  &__col--link {
+    @media (min-width: 720px) {
+      justify-self: center;
+    }
+  }
+
+  &__col--reboot {
+    @media (min-width: 720px) {
+      justify-self: end;
+    }
+  }
+
+  &__link {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: 2rem;
+    line-height: 1.2;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    color: var(--ink);
+    transition:
+      color 0.18s var(--ease-out),
+      translate 0.18s var(--ease-out),
+      transform 0.18s var(--ease-out);
+
+    &:hover,
+    &:focus-visible {
+      color: var(--lime);
+      translate: 6px -4px;
+      transform: skewX(-8deg);
+    }
+  }
+
+  // REBOOT の矢印は上に動く
+  .btn__arrow--up {
+    transition: translate 0.18s var(--ease-out);
+  }
+
+  .btn:hover .btn__arrow--up {
+    translate: 0 -4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer__ticker-track {
+    animation: none;
   }
 }
