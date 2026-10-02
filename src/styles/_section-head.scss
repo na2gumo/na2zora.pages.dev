@@ -34,7 +34,7 @@
     line-height: 0.8;
     text-transform: uppercase;
     color: transparent;
-    -webkit-text-stroke: 1.5px var(--lime);
+    -webkit-text-stroke: 1.5px var(--accent);
     padding: var(--clip-pad-y) var(--clip-pad-x);
     margin: calc(var(--clip-pad-y) * -1) calc(var(--clip-pad-x) * -1);
     user-select: none;
@@ -77,7 +77,7 @@
 
   &__slash {
     margin-right: 0.3em;
-    color: var(--lime);
+    color: var(--accent);
   }
 
   // 下線: 1px の罫線の上に 120px のライムが重なり、reveal で伸びる
@@ -101,7 +101,7 @@
       top: -1px;
       width: 120px;
       height: 3px;
-      background: var(--lime);
+      background: var(--accent);
       transform-origin: left center;
     }
   }

@@ -24,7 +24,7 @@
   }
 
   &__clearance {
-    color: var(--lime);
+    color: var(--accent);
   }
 
   &__body {
@@ -47,7 +47,7 @@
     position: relative;
     aspect-ratio: 1;
     overflow: hidden;
-    border: 2px solid var(--lime);
+    border: 2px solid var(--accent);
     background: var(--panel-2);
 
     img {
@@ -134,7 +134,7 @@
       top: 0;
       bottom: 0;
       width: 3px;
-      background: var(--lime);
+      background: var(--accent);
       transform: scaleY(0);
       transform-origin: center;
       transition: transform 0.2s var(--ease-out);
@@ -153,7 +153,7 @@
       }
 
       dt {
-        color: var(--lime);
+        color: var(--accent);
       }
     }
   }
@@ -177,7 +177,7 @@
 
     &:hover,
     &:focus-visible {
-      color: var(--lime);
+      color: var(--accent);
       text-decoration: underline;
       text-underline-offset: 4px;
     }
@@ -190,7 +190,7 @@
   &__text {
     margin: 8px 0 0;
     padding-left: 18px;
-    border-left: 3px solid var(--pink);
+    border-left: 3px solid var(--violet);
     font-family: var(--font-sans);
     font-size: 1.05rem;
     line-height: 1.8;
@@ -225,7 +225,7 @@
     overflow-wrap: anywhere;
 
     &--lime {
-      color: var(--lime);
+      color: var(--accent);
     }
 
     &--ink {

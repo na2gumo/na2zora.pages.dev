@@ -28,7 +28,7 @@ export const head: DocumentHead = {
     },
     {
       name: "theme-color",
-      content: "#09090b",
+      content: "#0b0612",
     },
     {
       property: "og:title",

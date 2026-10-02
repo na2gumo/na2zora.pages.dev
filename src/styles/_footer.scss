@@ -32,21 +32,21 @@
     letter-spacing: 0.01em;
     text-transform: uppercase;
     color: transparent;
-    -webkit-text-stroke: 1.5px var(--lime);
+    -webkit-text-stroke: 1.5px var(--accent);
     transition: color 0.3s var(--ease-out);
 
     // 星はテキストの塗りが透明なので、枠線だけにする
     .star {
       width: 0.5em;
       height: 0.5em;
-      background: var(--lime);
+      background: var(--accent);
       margin-inline: 0.35em;
       vertical-align: 0.12em;
     }
   }
 
   &__ticker:hover &__ticker-text {
-    color: var(--lime);
+    color: var(--accent);
   }
 
   // ---- 下段 ----
@@ -102,7 +102,7 @@
 
     &:hover,
     &:focus-visible {
-      color: var(--lime);
+      color: var(--accent);
       translate: 6px -4px;
       transform: skewX(-8deg);
     }

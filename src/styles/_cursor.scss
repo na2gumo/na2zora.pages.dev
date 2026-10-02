@@ -20,7 +20,7 @@
 
   // 四隅に 2px の L 字（background の linear-gradient 8 本）
   &__reticle {
-    --c: var(--lime);
+    --c: var(--accent);
 
     position: relative;
     width: 100%;
@@ -43,7 +43,7 @@
 
   // リンクなどの上: 44px（24px の約 1.83 倍）に広がり、ピンクになって 45° 回る
   &.is-hover &__reticle {
-    --c: var(--pink);
+    --c: var(--violet);
 
     scale: 1.83;
     rotate: 45deg;
@@ -68,7 +68,7 @@
     letter-spacing: 0.14em;
     line-height: 1;
     white-space: nowrap;
-    color: var(--pink);
+    color: var(--violet);
     text-shadow: 0 0 3px rgb(0 0 0 / 0.9);
     opacity: 0;
     transition: opacity 0.18s;

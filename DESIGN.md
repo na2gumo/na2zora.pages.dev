@@ -31,22 +31,22 @@ na2gumo（なつぐも）のポートフォリオ。**開発者**のページ。
 
 | 変数 | 値 | 用途 |
 | --- | --- | --- |
-| `--bg` | `#09090b` | ページ背景 |
-| `--panel` | `#131317` | パネル |
-| `--panel-2` | `#1c1c22` | パネルのホバー・明るめ |
+| `--bg` | `#0b0612` | ページ背景 |
+| `--panel` | `#150f20` | パネル |
+| `--panel-2` | `#20172f` | パネルのホバー・明るめ |
 | `--line` | `rgb(255 255 255 / 0.1)` | 罫線 |
 | `--line-strong` | `rgb(255 255 255 / 0.22)` | 強い罫線 |
-| `--ink` | `#f3f3ee` | 文字 |
-| `--dim` | `#8b8b96` | 補助文字 |
-| `--lime` | `#d4ff1e` | メインアクセント |
-| `--orange` | `#ff6a1a` | 警告・スタンプ |
-| `--pink` | `#ff2e88` | グリッチ・差し色・LIVE |
-| `--cyan` | `#2ee6ff` | 情報・グリッチ |
+| `--ink` | `#f7f1ff` | 文字 |
+| `--dim` | `#9d90b5` | 補助文字 |
+| `--accent` | `#ff4fd8` | メインアクセント（ホットピンク） |
+| `--orange` | `#ff8a5c` | 警告・スタンプ |
+| `--violet` | `#9a68ff` | グリッチ・差し色・LIVE |
+| `--cyan` | `#c9b8ff` | 情報・グリッチ |
 
 - ライム／オレンジ／ピンクの塗りの上の文字は必ず `--bg`
 - `::selection` は ライム背景 × 黒文字
 - `color-scheme: dark`。`html` と `body` の背景は `--bg`
-- スクロールバー: `scrollbar-color: var(--lime) var(--bg)`
+- スクロールバー: `scrollbar-color: var(--accent) var(--bg)`
 
 ### 文字
 
@@ -171,7 +171,7 @@ z-index の順（下から）:
 ### 2.5 フッター: END OF TRANSMISSION（`src/components/site-footer/site-footer.tsx`）
 
 - 上端に警告テープ（3.1 と同じ `.tape`、傾き 0、黒地にライム文字の版）
-- **巨大テロップ**: Anton、`font-size: 15vw`、白抜き（`color: transparent; -webkit-text-stroke: 1.5px var(--lime)`）。`END OF TRANSMISSION ✦ ` を繰り返して左へ流す（40s linear infinite）。ホバー中は流れが 1/4 の速さになり、文字がライムで塗られる
+- **巨大テロップ**: Anton、`font-size: 15vw`、白抜き（`color: transparent; -webkit-text-stroke: 1.5px var(--accent)`）。`END OF TRANSMISSION ✦ ` を繰り返して左へ流す（40s linear infinite）。ホバー中は流れが 1/4 の速さになり、文字がライムで塗られる
 - 下段（3 カラム、モバイルは縦積み、`padding: 48px var(--gutter) 32px`）:
   - 左: mono `NA2ZORA TERMINAL` / `© {年} na2gumo` / `Built with Qwik + Cloudflare Pages`（dim）
   - 中: リンク `GITHUB ↗`（`https://github.com/na2gumo`、Anton 2rem、ホバーでライム＋斜めにずれる）
@@ -192,7 +192,7 @@ props: `index: "01"`, `title: "AGENT FILE"`, `sub: "エージェント資料"`, 
  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-- 番号: Anton、`font-size: clamp(6rem, 16vw, 13rem)`、白抜き（`-webkit-text-stroke: 1.5px var(--lime)`、`color: transparent`）、`line-height: 0.8`、位置は左上。タイトルが番号の下半分に重なる（`margin-top: -0.45em`）
+- 番号: Anton、`font-size: clamp(6rem, 16vw, 13rem)`、白抜き（`-webkit-text-stroke: 1.5px var(--accent)`、`color: transparent`）、`line-height: 0.8`、位置は左上。タイトルが番号の下半分に重なる（`margin-top: -0.45em`）
 - タイトル: Anton `clamp(2.6rem, 7vw, 5.5rem)`、ink、`letter-spacing: 0.01em`
 - サブ: Dela Gothic One 1rem、dim、先頭にライムの `／`
 - 右上 `meta`: `.mono-label`。既定は `CH.{index} / 03`
@@ -237,7 +237,7 @@ props: `index: "01"`, `title: "AGENT FILE"`, `sub: "エージェント資料"`, 
 
 - `.tape` 共通: 高さ 46px、`display:flex; overflow:hidden; white-space:nowrap`。中身を 2 回並べて `translateX(-50%)` までループ
 - テープ A: `rotate: -3.5deg`、ライム塗り、Anton 1.5rem 黒、`WEB DEV ✦ UNITY ✦ LINUX ✦ CYBERSECURITY ✦ PRIVACY ✦ VRCHAT ✦ MINECRAFT ✦ `、左へ 28s
-- テープ B: `rotate: 2.5deg`、黒地、上下に 6px の警告ストライプ（`repeating-linear-gradient(-45deg, var(--lime) 0 10px, var(--bg) 10px 20px)`）、mono 0.8rem ライム `// NA2ZORA TERMINAL — AGENT na2gumo — STATUS: ONLINE — CLEARANCE: PUBLIC `、右へ 36s
+- テープ B: `rotate: 2.5deg`、黒地、上下に 6px の警告ストライプ（`repeating-linear-gradient(-45deg, var(--accent) 0 10px, var(--bg) 10px 20px)`）、mono 0.8rem ライム `// NA2ZORA TERMINAL — AGENT na2gumo — STATUS: ONLINE — CLEARANCE: PUBLIC `、右へ 36s
 - A が B の上に重なる（z-index）。テープのホバーで流れが止まる
 - **スクロール合図**: 左下 mono `SCROLL ▼`（▼ が 1s で上下 4px）
 
@@ -331,7 +331,7 @@ SectionHead: `02` / `LOADOUT` / `装備スキル`。
 - その下: name（Anton `clamp(3rem, 6vw, 5rem)`）、note（`--font-sans` 1rem、dim）
 - 下端: mono `PRESS 1-7 / ↑↓ TO SWITCH`（dim、モバイルでは非表示）
 - **切り替え演出**（選択が変わるたび、`key` で再マウントして CSS アニメーション）:
-  - アイコン・name・note が 0.28s のグリッチイン: 最初の 2 ステップは `clip-path: inset(40% 0 35% 0)` と `translate: 8px 0`（ピンクの `text-shadow: -3px 0 var(--pink), 3px 0 var(--cyan)`）、最後に元へ
+  - アイコン・name・note が 0.28s のグリッチイン: 最初の 2 ステップは `clip-path: inset(40% 0 35% 0)` と `translate: 8px 0`（ピンクの `text-shadow: -3px 0 var(--violet), 3px 0 var(--cyan)`）、最後に元へ
   - 背景の番号が下から 30px スライドイン
   - ディスプレイ左端に 1 フレームだけライムのフラッシュ（`::after` で幅 100% → 0 のライムの帯が左から右へ抜ける、0.35s）
 
@@ -397,7 +397,7 @@ SectionHead: `03` / `ACTIVITY LOG` / `活動ログ` / meta `SOURCE: api.github.c
 
 - title: `なつぐも (na2gumo) — NA2ZORA TERMINAL`
 - description: `開発者 なつぐも (na2gumo) のポートフォリオ。`
-- `theme-color`: `#09090b`
+- `theme-color`: `#0b0612`
 - router-head: Anton の woff2 を preload（`/fonts/common/Anton.woff2`、実際のファイル名は fonts.css を確認）。`html.js` を付けるインラインスクリプトと、BOOT のフラグを見て `html.booted boot-done` を付けるインラインスクリプト（同じ 1 本でよい。`<head>` の先頭寄り）
 
 ## 6. 品質
