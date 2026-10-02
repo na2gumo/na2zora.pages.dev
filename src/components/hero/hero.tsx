@@ -8,8 +8,7 @@ interface HeroProps {
   pushes: number;
 }
 
-const TAPE_A = ["WEB DEV", "UNITY", "LINUX", "CYBERSECURITY", "PRIVACY", "VRCHAT", "MINECRAFT"];
-const TAPE_B = ["// NA2ZORA TERMINAL", "AGENT na2gumo", "STATUS: ONLINE", "CLEARANCE: PUBLIC"];
+const TAPE = ["KEEP OUT"];
 
 /**
  * CH.00 ヒーロー。名前・ステッカー・モニター・警告テープ。
@@ -106,10 +105,6 @@ export const Hero = component$<HeroProps>(({ ok, pushes }) => {
             </li>
           </ul>
 
-          <p class="hero__lead" data-reveal="up" style={{ "--i": 7 }}>
-            開発者で、学生。VRChat に生息しています。最近は Minecraft にも手を付けたり。
-          </p>
-
           <div class="hero__actions" data-reveal="up" style={{ "--i": 8 }}>
             <a href="#agent" class="btn btn--primary">
               OPEN AGENT FILE <span class="btn__arrow">↓</span>
@@ -179,10 +174,10 @@ export const Hero = component$<HeroProps>(({ ok, pushes }) => {
       {/* ---- 下端: 警告テープ 2 本 ---- */}
       <div class="hero__tapes">
         <div class="hero__tape hero__tape--a" data-reveal="left" style={{ "--i": 6 }}>
-          <Tape items={TAPE_A} speed="28s" />
+          <Tape items={TAPE} repeat={8} speed="28s" />
         </div>
         <div class="hero__tape hero__tape--b" data-reveal="right" style={{ "--i": 6 }}>
-          <Tape items={TAPE_B} sep={"\u00a0—\u00a0"} class="tape--stripe tape--reverse" speed="36s" repeat={4} />
+          <Tape items={TAPE} class="tape--stripe tape--reverse" speed="36s" repeat={8} />
         </div>
       </div>
     </section>

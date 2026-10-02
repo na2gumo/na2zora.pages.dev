@@ -234,14 +234,6 @@ $glitch-cyan: (
     }
   }
 
-  &__lead {
-    max-width: 32em;
-    margin: 24px 0 0;
-    font-family: var(--font-sans);
-    font-size: clamp(1rem, 1.4vw, 1.15rem);
-    color: rgb(247 241 255 / 0.85);
-  }
-
   &__actions {
     display: flex;
     flex-wrap: wrap;

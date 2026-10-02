@@ -1,26 +1,23 @@
-import { component$, useSignal, useVisibleTask$ } from "@builder.io/qwik";
+import { component$ } from "@builder.io/qwik";
 import { SectionHead } from "../section-head/section-head";
 
-type SkillTag = "SKILL" | "HABITAT" | "NEW";
 type IconKey = "web" | "unity" | "linux" | "security" | "privacy" | "vrchat" | "minecraft";
 
 interface Skill {
   name: string;
-  tag: SkillTag;
-  note: string;
   icon: IconKey;
 }
 
-// ── 装備スロットのデータ（ここを書き換えれば表示が変わる）──
+// ── 装備スキルのデータ（ここを書き換えれば表示が変わる）──
 // 事実以外は書かない。レベルや熟練度の数値は作らない。
 const SKILLS: Skill[] = [
-  { name: "Web Dev", tag: "SKILL", note: "このサイトも Qwik + Cloudflare Pages 製。", icon: "web" },
-  { name: "Unity", tag: "SKILL", note: "スキル・興味", icon: "unity" },
-  { name: "Linux", tag: "SKILL", note: "スキル・興味", icon: "linux" },
-  { name: "CyberSecurity", tag: "SKILL", note: "スキル・興味", icon: "security" },
-  { name: "Privacy", tag: "SKILL", note: "スキル・興味", icon: "privacy" },
-  { name: "VRChat", tag: "HABITAT", note: "生息地。", icon: "vrchat" },
-  { name: "Minecraft", tag: "NEW", note: "最近手を付けた。", icon: "minecraft" },
+  { name: "Web Dev", icon: "web" },
+  { name: "Unity", icon: "unity" },
+  { name: "Linux", icon: "linux" },
+  { name: "CyberSecurity", icon: "security" },
+  { name: "Privacy", icon: "privacy" },
+  { name: "VRChat", icon: "vrchat" },
+  { name: "Minecraft", icon: "minecraft" },
 ];
 
 // メーターの総マス数（EQUIPPED n / 9）
@@ -28,7 +25,7 @@ const MAX_SLOTS = 9;
 
 const pad2 = (n: number) => String(n).padStart(2, "0");
 
-/** スロットごとの 96×96 線画アイコン（ライムの 2.5px 線・fill なし・square キャップ） */
+/** スキルごとの 96×96 線画アイコン（アクセント色の 2.5px 線・fill なし・square キャップ） */
 const SkillIcon = ({ icon }: { icon: IconKey }) => {
   let shapes;
   switch (icon) {
@@ -107,7 +104,7 @@ const SkillIcon = ({ icon }: { icon: IconKey }) => {
   }
   return (
     <svg
-      class="display__icon"
+      class="skill__icon"
       viewBox="0 0 96 96"
       width="96"
       height="96"
@@ -124,138 +121,34 @@ const SkillIcon = ({ icon }: { icon: IconKey }) => {
 };
 
 /**
- * CH.02 LOADOUT ── スキルを装備スロットとして見せる。
- * 右（モバイルでは上）のスロットを選ぶと、左のディスプレイが切り替わる。
- * 数字キー 1〜7 と ↑/↓ でも選べる（セクションが 40% 以上見えているとき）。
+ * CH.02 LOADOUT ── スキルを装備スロットとして全部横並びで見せる。
+ * アイコンと名前だけ。クリックして切り替える操作はない。
  */
 export const Loadout = component$(() => {
-  const selected = useSignal(0);
-  const rootRef = useSignal<HTMLElement>();
-
-  // キー操作: セクションの可視率を IntersectionObserver で追い、40% 以上のときだけ受け付ける
-  useVisibleTask$(({ cleanup }) => {
-    const root = rootRef.value;
-    if (!root) return;
-    const total = SKILLS.length;
-
-    let ratio = 0;
-    const steps = Array.from({ length: 21 }, (_, i) => i / 20);
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) ratio = e.intersectionRatio;
-      },
-      { threshold: steps }
-    );
-    io.observe(root);
-
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
-      if (ratio < 0.4) return;
-      // フォーム入力中は奪わない
-      const t = e.target as HTMLElement | null;
-      if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
-
-      let next = -1;
-      if (/^[1-9]$/.test(e.key)) {
-        const i = Number(e.key) - 1;
-        if (i < total) next = i;
-      } else if (e.key === "ArrowDown") {
-        next = (selected.value + 1) % total;
-      } else if (e.key === "ArrowUp") {
-        next = (selected.value - 1 + total) % total;
-      }
-      if (next < 0) return;
-
-      e.preventDefault();
-      selected.value = next;
-      // タブにフォーカスがあるときは、フォーカスも選択に追従させる
-      if (document.activeElement?.getAttribute("role") === "tab") {
-        root.querySelectorAll<HTMLElement>('[role="tab"]')[next]?.focus();
-      }
-    };
-    window.addEventListener("keydown", onKeyDown);
-
-    cleanup(() => {
-      io.disconnect();
-      window.removeEventListener("keydown", onKeyDown);
-    });
-  });
-
-  const cur = SKILLS[selected.value];
-  const num = pad2(selected.value + 1);
-
   return (
-    <section id="loadout" class="ch-section loadout" aria-labelledby="loadout-title" ref={rootRef}>
+    <section id="loadout" class="ch-section loadout" aria-labelledby="loadout-title">
       <SectionHead index="02" title="LOADOUT" sub="装備スキル" id="loadout-title" />
 
-      <div class="loadout__grid">
-        {/* スロット一覧 */}
-        <div class="loadout__slots" data-reveal="up" style={{ "--i": 1 }}>
-          <div class="slots" role="tablist" aria-label="装備スキル" aria-orientation="vertical">
-            {SKILLS.map((s, i) => (
-              <button
-                key={s.name}
-                type="button"
-                role="tab"
-                id={`loadout-tab-${i}`}
-                aria-selected={i === selected.value}
-                aria-controls="loadout-panel"
-                tabIndex={i === selected.value ? 0 : -1}
-                class={{ slot: true, "slot--on": i === selected.value }}
-                onClick$={() => {
-                  selected.value = i;
-                }}
-              >
-                <span class="slot__no">{pad2(i + 1)}</span>
-                <span class="slot__name">{s.name}</span>
-                <span class={["slot__tag", "mono-label", `slot__tag--${s.tag.toLowerCase()}`]}>{s.tag}</span>
-              </button>
-            ))}
-          </div>
-
-          <div class="equipped">
-            <span class="mono-label">
-              EQUIPPED {SKILLS.length} / {MAX_SLOTS}
-            </span>
-            <div class="equipped__meter" aria-hidden="true">
-              {Array.from({ length: MAX_SLOTS }, (_, i) => (
-                <span key={i} class={{ equipped__cell: true, "equipped__cell--on": i < SKILLS.length }} />
-              ))}
+      <ul class="skills">
+        {SKILLS.map((s, i) => (
+          <li key={s.name} class="skills__item" data-reveal="pop" style={{ "--i": i }}>
+            <div class="skill">
+              <span class="skill__no">{pad2(i + 1)}</span>
+              <SkillIcon icon={s.icon} />
+              <h3 class="skill__name">{s.name}</h3>
             </div>
-          </div>
-        </div>
+          </li>
+        ))}
+      </ul>
 
-        {/* ディスプレイ */}
-        <div class="loadout__display" data-reveal="up" style={{ "--i": 0 }}>
-          <div
-            class="display"
-            role="tabpanel"
-            id="loadout-panel"
-            aria-labelledby={`loadout-tab-${selected.value}`}
-          >
-            {/* key で再マウントし、選択のたびに切り替え演出（CSS アニメーション）を再生する */}
-            <div class="display__stage" key={selected.value}>
-              <span class="display__flash" aria-hidden="true" />
-              <span class="display__bignum" aria-hidden="true">
-                {num}
-              </span>
-
-              <div class="display__top">
-                <span class={["sticker", "display__tag", `display__tag--${cur.tag.toLowerCase()}`]}>
-                  <span>{cur.tag}</span>
-                </span>
-                <span class="mono-label">SLOT {num}</span>
-              </div>
-
-              <div class="display__main">
-                <SkillIcon icon={cur.icon} />
-                <h3 class="display__name">{cur.name}</h3>
-                <p class="display__note">{cur.note}</p>
-              </div>
-
-              <p class="mono-label display__hint">PRESS 1-{SKILLS.length} / ↑↓ TO SWITCH</p>
-            </div>
-          </div>
+      <div class="equipped" data-reveal="up" style={{ "--i": 3 }}>
+        <span class="mono-label">
+          EQUIPPED {SKILLS.length} / {MAX_SLOTS}
+        </span>
+        <div class="equipped__meter" aria-hidden="true">
+          {Array.from({ length: MAX_SLOTS }, (_, i) => (
+            <span key={i} class={{ equipped__cell: true, "equipped__cell--on": i < SKILLS.length }} />
+          ))}
         </div>
       </div>
     </section>

@@ -1,93 +1,115 @@
 @use "b-mixins" as *;
 
-// CH.02 LOADOUT（DESIGN §3.3）
+// CH.02 LOADOUT（DESIGN §3.3）── 全スキルを横並びのカードで出す
 
-.loadout {
-  &__grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 24px;
-  }
+.skills {
+  display: grid;
+  // モバイルは 2 列、広くなるほど 1 行に収まるまで列を増やす
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 
-  // モバイルは DOM 順（スロット → ディスプレイ）のまま縦に並べる
-  &__slots,
-  &__display {
+  &__item {
     min-width: 0;
   }
 }
 
-// ── スロット一覧 ──
-.slots {
-  // モバイル: 横スクロールのチップ列
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding: 4px 14px 12px 4px;
-  scroll-snap-type: x proximity;
-  scrollbar-width: thin;
-  scrollbar-color: var(--accent) transparent;
+@media (min-width: 640px) {
+  .skills {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
-.slot {
-  position: relative;
-  flex: 0 0 auto;
-  display: block;
-  margin: 0;
-  padding: 8px 14px;
-  border: 0;
-  background: var(--panel);
-  box-shadow: inset 0 0 0 1px var(--line-strong);
-  color: var(--ink);
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-  scroll-snap-align: center;
-  transform: skewX(-8deg);
-  transition:
-    transform 0.25s var(--ease-pop),
-    background-color 0.18s var(--ease-out),
-    color 0.18s var(--ease-out);
+@media (min-width: 1100px) {
+  .skills {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 12px;
+  }
+}
 
-  &__no,
-  &__tag {
-    display: none;
+.skill {
+  @include notch-panel(14px, var(--panel), var(--line-strong));
+
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 14px;
+  min-height: 190px;
+  padding: 36px 8px 22px;
+  text-align: center;
+  transition:
+    translate 0.25s var(--ease-pop),
+    background 0.2s;
+
+  &::before {
+    transition: background 0.2s;
+  }
+
+  &__no {
+    position: absolute;
+    top: 12px;
+    left: 16px;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    color: var(--dim);
+    transition: color 0.2s;
+  }
+
+  &__icon {
+    width: 64px;
+    height: 64px;
+    color: var(--accent);
+    transition:
+      color 0.2s,
+      rotate 0.3s var(--ease-pop),
+      scale 0.3s var(--ease-pop);
   }
 
   &__name {
-    display: block;
+    margin: 0;
+    max-width: 100%;
     font-family: var(--font-display);
-    font-size: 1.1rem;
-    line-height: 1.2;
-    letter-spacing: 0.04em;
+    font-weight: 400;
+    font-size: 1.25rem;
+    line-height: 1;
+    letter-spacing: 0.02em;
     text-transform: uppercase;
-    white-space: nowrap;
+    overflow-wrap: anywhere;
+    transition: color 0.2s;
   }
 
+  // ホバー: ピンクに反転して持ち上がり、アイコンが傾く
   &:hover {
-    background: var(--panel-2);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
-
-  // 選択中: ライム塗り・全テキスト黒（skew は戻さず傾いたまま）
-  &--on,
-  &--on:hover {
+    translate: 0 -6px;
     background: var(--accent);
-    box-shadow: none;
-    color: var(--bg);
+
+    &::before {
+      background: var(--accent);
+    }
+
+    .skill__no,
+    .skill__icon,
+    .skill__name {
+      color: var(--bg);
+    }
+
+    .skill__icon {
+      rotate: -8deg;
+      scale: 1.12;
+    }
   }
 }
 
-// ── EQUIPPED メーター ──
+// ── 装備メーター ──
 .equipped {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 8px 14px;
-  margin-top: 8px;
+  margin-top: 24px;
 
   &__meter {
     display: flex;
@@ -106,313 +128,9 @@
   }
 }
 
-// ── ディスプレイ ──
-.display {
-  --notch: 28px;
-  @include notch-panel(28px);
-  min-height: 420px;
-  overflow: hidden;
-
-  // 切り替えのたびに key で再マウントされる
-  &__stage {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
-    min-height: 420px;
-    padding: 36px 20px;
-  }
-
-  // 巨大な背景番号（右下にはみ出す）
-  &__bignum {
-    position: absolute;
-    right: -0.04em;
-    bottom: -0.2em;
-    z-index: -1;
-    font-family: var(--font-display);
-    font-size: 14rem;
-    line-height: 0.85;
-    color: transparent;
-    -webkit-text-stroke: 2px var(--line-strong);
-    user-select: none;
-    pointer-events: none;
-    animation: loadout-num-in 0.4s var(--ease-out);
-  }
-
-  // 切り替え時に左から右へ抜けるライムの帯（1 フレームだけのフラッシュ）
-  &__flash {
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    background: var(--accent);
-    transform-origin: right center;
-    transform: scaleX(0);
-    pointer-events: none;
-    animation: loadout-flash 0.35s var(--ease-out);
-  }
-
-  &__top {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-
-  &__tag {
-    font-family: var(--font-mono);
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    background: var(--accent);
-    color: var(--bg);
-
-    &--habitat {
-      background: var(--cyan);
-    }
-
-    &--new {
-      background: var(--violet);
-    }
-  }
-
-  &__main {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 18px;
-    margin-block: 28px;
-  }
-
-  &__icon {
-    flex: none;
-    color: var(--accent);
-    animation: loadout-glitch-icon 0.28s steps(1, end);
-  }
-
-  &__name {
-    margin: 0;
-    font-family: var(--font-display);
-    font-size: clamp(3rem, 6vw, 5rem);
-    font-weight: 400;
-    line-height: 0.9;
-    letter-spacing: 0.01em;
-    text-transform: uppercase;
-    color: var(--ink);
-    overflow-wrap: anywhere;
-    animation: loadout-glitch-text 0.28s steps(1, end);
-  }
-
-  &__note {
-    margin: 0;
-    max-width: 28em;
-    font-family: var(--font-sans);
-    font-size: 1rem;
-    line-height: 1.8;
-    color: var(--dim);
-    animation: loadout-glitch-text 0.28s steps(1, end);
-  }
-
-  &__hint {
-    display: none;
-    margin: auto 0 0;
-  }
-}
-
-@keyframes loadout-glitch-text {
-  0% {
-    clip-path: inset(40% 0 35% 0);
-    translate: 8px 0;
-    text-shadow:
-      -3px 0 var(--violet),
-      3px 0 var(--cyan);
-  }
-  35% {
-    clip-path: inset(15% 0 55% 0);
-    translate: -6px 0;
-    text-shadow:
-      -3px 0 var(--violet),
-      3px 0 var(--cyan);
-  }
-  70%,
-  100% {
-    clip-path: inset(0);
-    translate: 0 0;
-    text-shadow: none;
-  }
-}
-
-@keyframes loadout-glitch-icon {
-  0% {
-    clip-path: inset(40% 0 35% 0);
-    translate: 8px 0;
-    filter: drop-shadow(-3px 0 var(--violet)) drop-shadow(3px 0 var(--cyan));
-  }
-  35% {
-    clip-path: inset(15% 0 55% 0);
-    translate: -6px 0;
-    filter: drop-shadow(-3px 0 var(--violet)) drop-shadow(3px 0 var(--cyan));
-  }
-  70%,
-  100% {
-    clip-path: inset(0);
-    translate: 0 0;
-    filter: none;
-  }
-}
-
-@keyframes loadout-num-in {
-  from {
-    opacity: 0;
-    translate: 0 30px;
-  }
-  to {
-    opacity: 1;
-    translate: 0 0;
-  }
-}
-
-@keyframes loadout-flash {
-  0% {
-    transform: scaleX(1);
-  }
-  100% {
-    transform: scaleX(0);
-  }
-}
-
-// ── デスクトップ ──
-@media (min-width: 960px) {
-  .loadout__grid {
-    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
-    gap: 32px;
-    align-items: start;
-  }
-
-  .loadout__display {
-    grid-column: 1;
-    grid-row: 1;
-  }
-
-  .loadout__slots {
-    grid-column: 2;
-    grid-row: 1;
-  }
-
-  .slots {
-    display: block;
-    overflow: visible;
-    padding: 0;
-    // 選択中スロットが右へ 14px ずれても枠からはみ出さないよう、一覧の右に余白をとる
-    margin-right: 14px;
-    border-top: 1px solid var(--line);
-  }
-
-  .slot {
-    display: grid;
-    grid-template-columns: 48px minmax(0, 1fr) auto;
-    align-items: center;
-    width: 100%;
-    height: 64px;
-    padding: 0 18px;
-    box-sizing: border-box;
-    box-shadow: none;
-    border-bottom: 1px solid var(--line);
-    transform: none;
-    scroll-snap-align: none;
-
-    &__no,
-    &__tag {
-      display: block;
-    }
-
-    &__no {
-      font-family: var(--font-mono);
-      font-size: 0.8rem;
-      font-variant-numeric: tabular-nums;
-      color: var(--dim);
-    }
-
-    &__name {
-      font-size: 1.6rem;
-      transition: translate 0.2s var(--ease-out);
-    }
-
-    &__tag {
-      color: var(--dim);
-
-      &--habitat {
-        color: var(--cyan);
-      }
-
-      &--new {
-        color: var(--violet);
-      }
-    }
-
-    // ホバー: name が右へ 6px、左端にピンクの縦線
-    &::before {
-      content: "";
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 4px;
-      background: var(--violet);
-      transform: scaleY(0);
-      transition: transform 0.2s var(--ease-out);
-    }
-
-    &:hover::before {
-      transform: scaleY(1);
-    }
-
-    &:hover .slot__name {
-      translate: 6px 0;
-    }
-
-    &--on,
-    &--on:hover {
-      transform: skewX(-8deg) translateX(14px);
-
-      &::before {
-        transform: scaleY(0);
-      }
-
-      .slot__no,
-      .slot__tag,
-      .slot__tag--habitat,
-      .slot__tag--new {
-        color: var(--bg);
-      }
-    }
-  }
-
-  .display {
-    &__stage {
-      padding: 36px;
-    }
-
-    &__bignum {
-      font-size: 22rem;
-    }
-
-    &__hint {
-      display: block;
-    }
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .slot,
-  .slot::before,
-  .slot__name {
+  .skill,
+  .skill__icon {
     transition: none;
-  }
-
-  .display__bignum,
-  .display__flash,
-  .display__icon,
-  .display__name,
-  .display__note {
-    animation: none;
   }
 }
