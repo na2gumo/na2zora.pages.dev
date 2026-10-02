@@ -1,156 +1,422 @@
 @use "b-mixins" as *;
 
-// CH.01 AGENT FILE（DESIGN §3.2）
+// CH.01 AGENT FILE（DESIGN §3.2）── ゲームのエージェント選択画面
+// グリッチの keyframes（glitch-pink-hover など）は _hero.scss のものをそのまま使い回す
 
-.dossier {
-  // data-reveal（clip-path のワイプ）は外側、ノッチは内側 .dossier__panel に分けて競合を避ける
-  &__panel {
-    --notch: 24px;
-    @include notch-panel(24px);
-    // reveal 前のスタンプ（scale 2.2）がページの横幅を押し広げないように
-    overflow: clip;
-  }
+.select {
+  --word: clamp(5.5rem, 10vw, 9rem);
 
-  &__bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(32px, 4vw, 64px);
+  align-items: center;
+
+  // ---------------- 左: ポートレート ----------------
+  &__stage {
     position: relative;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 4px 16px;
-    margin-inline: clamp(20px, 3vw, 40px);
-    padding: 14px 0 12px;
-    border-bottom: 1px solid var(--line);
+    width: 100%;
+    max-width: 560px;
+    // 背面の板（左に -18px / 下に 18px ずれる）が見切れないよう余白を取る
+    margin-bottom: 18px;
+    padding-left: 14px;
   }
 
-  &__clearance {
-    color: var(--accent);
+  // 背面のバイオレットのハーフトーン板。ポートレートと同じ形で、左下にずらす
+  &__halftone {
+    position: absolute;
+    inset: 14px 14px -14px 0;
+    z-index: 0;
+    background: radial-gradient(var(--violet) 1.4px, transparent 1.9px) 0 0 / 6px 6px;
+    opacity: 0.5;
+    clip-path: polygon(0 0, 100% 0, 100% 86%, 0 100%);
+    pointer-events: none;
   }
 
-  &__body {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 32px;
-    padding: clamp(20px, 3vw, 40px);
+  // 縦書きの巨大な AGENT（モバイルでは非表示）
+  &__word {
+    display: none;
+    position: absolute;
+    z-index: 0;
+    left: -0.55em;
+    top: 6%;
+    font-family: var(--font-display);
+    font-size: var(--word);
+    line-height: 0.9;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--accent);
+    writing-mode: vertical-rl;
+    rotate: 180deg;
+    user-select: none;
+    pointer-events: none;
   }
 
-  &__side {
-    width: min(100%, 280px);
-  }
-
-  &__photo-wrap {
+  &__portrait {
     position: relative;
+    z-index: 1;
+    aspect-ratio: 1 / 1;
+    background: var(--panel);
+    clip-path: polygon(0 0, 100% 0, 100% 86%, 0 100%);
   }
 
-  // 証明写真: 正方形・ライムの 2px 枠・グレースケール
-  &__photo {
-    position: relative;
-    aspect-ratio: 1;
+  // data-reveal のワイプはクリップの内側のこの要素が担当する
+  &__reveal {
+    position: absolute;
+    inset: 0;
     overflow: hidden;
-    border: 2px solid var(--accent);
-    background: var(--panel-2);
+  }
 
+  &__art {
+    position: absolute;
+    inset: 0;
+    transition: scale 0.5s var(--ease-out);
+
+    picture,
     img {
       display: block;
       width: 100%;
       height: 100%;
-      object-fit: cover;
-      filter: grayscale(1);
-      transition: filter 0.4s var(--ease-out);
     }
 
-    // ホバーでカラーに戻る
-    &:hover img {
-      filter: grayscale(0);
+    img {
+      object-fit: cover;
     }
   }
 
-  // VERIFIED スタンプ。reveal(slam) が rotate を -14deg → -8deg に動かす
-  &__stamp {
+  // ホバー時の RGB ずれ用の複製。グレー化した画像に multiply で色を乗せ、screen で重ねる
+  &__ghost {
     position: absolute;
-    right: -10px;
-    bottom: -12px;
-    padding: 2px 10px;
-    border: 3px solid var(--orange);
-    font-family: var(--font-display);
-    font-size: 1.6rem;
-    line-height: 1.1;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--orange);
-    rotate: -8deg;
-    opacity: 0.92;
+    inset: 0;
+    isolation: isolate;
     mix-blend-mode: screen;
+    opacity: 0;
+    pointer-events: none;
+
+    img {
+      filter: grayscale(1) contrast(1.1);
+    }
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      mix-blend-mode: multiply;
+    }
+
+    &--a::after {
+      background: var(--accent);
+    }
+
+    &--b::after {
+      background: var(--violet);
+    }
+  }
+
+  // 左上のテキストが明るいアバターに埋もれないよう、上端を少しだけ暗くする
+  &__reveal::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: 1;
+    height: 28%;
+    background: linear-gradient(rgb(11 6 18 / 0.55), transparent);
     pointer-events: none;
   }
 
-  &__barcode {
-    height: 36px;
-    margin-top: 24px;
-    // 周期の違う 2 本を重ねて不規則なバーコードに見せる
-    background:
-      repeating-linear-gradient(90deg, var(--ink) 0 2px, transparent 2px 4px, var(--ink) 4px 5px, transparent 5px 8px),
-      repeating-linear-gradient(90deg, transparent 0 6px, var(--ink) 6px 9px, transparent 9px 13px);
+  // 下 40% を背景色へフェード
+  &__fade {
+    position: absolute;
+    inset: auto 0 0;
+    height: 40%;
+    background: linear-gradient(transparent, var(--bg));
+    pointer-events: none;
   }
 
-  &__id {
-    display: block;
-    margin-top: 8px;
+  // 集中線。疑似要素を translate で斜めに流す（勾配 115deg の 1 周期 22px 分で継ぎ目なくループ）
+  &__lines {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: -40px;
+      background: repeating-linear-gradient(115deg, rgb(255 255 255 / 0.07) 0 1px, transparent 1px 22px);
+    }
   }
-}
 
-// 属性テーブル
-.attrs {
-  margin: 0;
+  // 四隅のテキスト
+  &__tag {
+    position: absolute;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    line-height: 1.5;
+    text-transform: uppercase;
+    text-shadow: 0 1px 6px rgb(0 0 0 / 0.7);
 
-  &__row {
-    position: relative;
+    &--tl {
+      top: 16px;
+      left: 18px;
+    }
+
+    &--bl {
+      bottom: 16px;
+      left: 18px;
+    }
+  }
+
+  // 明るいアバターの上でも読めるよう、1 行ずつ暗い帯を敷く
+  &__tag-main,
+  &__tag-sub,
+  &__rec {
+    padding: 1px 6px;
+    background: rgb(11 6 18 / 0.78);
+  }
+
+  &__tag-main {
+    color: var(--ink);
+  }
+
+  &__tag-sub {
+    color: var(--accent);
+  }
+
+  &__rec {
+    color: var(--violet);
+  }
+
+  // エンブレム: 点線の輪だけが回り、文字は回らない
+  &__emblem {
+    position: absolute;
+    z-index: 2;
+    top: 14px;
+    right: 18px;
     display: grid;
-    grid-template-columns: 130px minmax(0, 1fr);
-    align-items: baseline;
-    padding: 14px 0;
+    place-items: center;
+    width: 72px;
+    height: 72px;
+  }
+
+  &__emblem-ring {
+    position: absolute;
+    inset: 0;
+    border: 1.5px dashed var(--accent);
+    border-radius: 50%;
+  }
+
+  &__emblem-text {
+    position: relative;
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    line-height: 1;
+    letter-spacing: 0.04em;
+    color: var(--ink);
+    text-shadow: 0 1px 6px rgb(0 0 0 / 0.6);
+  }
+
+  // ホバー: アバターが拡大
+  &__portrait:hover &__art {
+    scale: 1.04;
+  }
+
+  // ---------------- 右: 情報 ----------------
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 0;
+  }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 12px;
     border-bottom: 1px solid var(--line);
+  }
+
+  &__name-wrap,
+  &__jp-wrap {
+    align-self: flex-start;
+    max-width: 100%;
+  }
+
+  &__name {
+    position: relative;
+    width: fit-content;
+    margin: 0;
+    padding-block: 0.04em;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(3.4rem, 7.5vw, 6.5rem);
+    line-height: 0.85;
+    letter-spacing: 0;
+    white-space: nowrap;
+    text-transform: uppercase;
+    color: var(--ink);
+
+    // グリッチは普段は出さない。ホバー時だけバーストする
+    &::before,
+    &::after {
+      content: attr(data-text);
+      position: absolute;
+      inset: 0;
+      padding-block: inherit;
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    &::before {
+      color: var(--violet);
+    }
+
+    &::after {
+      color: var(--cyan);
+    }
+  }
+
+  &__jp {
+    margin: 0;
+    font-family: var(--font-head);
+    font-size: 1.4rem;
+    line-height: 1.5;
+    padding-inline: 14px;
+  }
+
+  // クラスバッジ
+  &__classes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__class {
+    display: inline-block;
+    padding: 3px 16px;
+    box-shadow: inset 0 0 0 1px var(--line-strong);
+    transform: skewX(-10deg);
+    transition: box-shadow 0.18s var(--ease-out);
+
+    &:hover {
+      box-shadow: inset 0 0 0 1px var(--accent);
+    }
+  }
+
+  &__class-in {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    line-height: 1.5;
+    letter-spacing: 0.06em;
+    transform: skewX(10deg);
+  }
+
+  &__diamond {
+    flex: none;
+    width: 8px;
+    height: 8px;
+    background: var(--accent);
+    rotate: 45deg;
+  }
+
+  // ステータスバー
+  &__stats {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  &__stat {
+    display: grid;
+    grid-template-columns: 130px minmax(0, 1fr) 56px;
+    align-items: center;
+    gap: 14px;
+  }
+
+  &__stat-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+  }
+
+  &__bar {
+    display: flex;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  &__seg {
+    flex: 1;
+    height: 10px;
+    box-shadow: inset 0 0 0 1px var(--line-strong);
+    transform: skewX(-20deg);
+
+    &--on {
+      background: var(--accent);
+      box-shadow: none;
+    }
+
+    // 先端だけ光る
+    &--tip {
+      background: var(--ink);
+      box-shadow: 0 0 10px var(--accent);
+    }
+  }
+
+  &__stat-value {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    line-height: 1;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+  }
+
+  &__stat--dead &__stat-value {
+    color: var(--dim);
+  }
+
+  // 属性タイル
+  &__tiles {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin: 0;
+  }
+
+  &__tile {
+    @include notch-panel(10px);
+    padding: 12px 14px;
     transition: background-color 0.18s var(--ease-out);
 
     dt,
     dd {
       margin: 0;
-      // 行ホバーで padding-left が動く見た目は translate で作る（レイアウトを動かさない）
-      transition:
-        translate 0.2s var(--ease-out),
-        color 0.18s var(--ease-out);
     }
 
-    dd {
-      padding-right: 12px;
-      overflow-wrap: anywhere;
+    dt {
+      transition: color 0.18s var(--ease-out);
     }
 
-    // 左のライム線が scaleY で伸びる
-    &::before {
-      content: "";
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 3px;
-      background: var(--accent);
-      transform: scaleY(0);
-      transform-origin: center;
-      transition: transform 0.2s var(--ease-out);
-    }
-
+    // ホバー: 枠（= 外側の背景）とラベルが accent
     &:hover {
-      background: var(--panel-2);
-
-      &::before {
-        transform: scaleY(1);
-      }
-
-      dt,
-      dd {
-        translate: 12px 0;
-      }
+      background: var(--accent);
 
       dt {
         color: var(--accent);
@@ -158,121 +424,253 @@
     }
   }
 
-  &__name {
-    font-family: var(--font-head, "Dela Gothic One", var(--font-sans));
-    font-size: 1.3rem;
-    line-height: 1.4;
-  }
-
-  &__handle {
-    font-family: var(--font-mono);
-    font-size: 0.9rem;
-    color: var(--dim);
-  }
-
-  &__link {
-    color: var(--cyan);
-    text-decoration: none;
-    transition: color 0.18s var(--ease-out);
-
-    &:hover,
-    &:focus-visible {
-      color: var(--accent);
-      text-decoration: underline;
-      text-underline-offset: 4px;
-    }
-  }
-}
-
-.bio {
-  margin-top: 28px;
-
-  &__text {
-    margin: 8px 0 0;
-    padding-left: 18px;
-    border-left: 3px solid var(--violet);
+  &__tile-value {
     font-family: var(--font-sans);
-    font-size: 1.05rem;
-    line-height: 1.8;
-  }
-}
-
-// ステータス 3 枚
-.stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
-  gap: 10px;
-  margin-top: 28px;
-}
-
-.stat {
-  --notch: 10px;
-  @include notch-panel(10px, var(--panel-2), var(--line));
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  height: 100%;
-  box-sizing: border-box;
-  padding: 14px 16px;
-
-  &__value {
-    font-family: var(--font-display);
-    font-size: 2.2rem;
-    line-height: 0.95;
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
-    font-variant-numeric: tabular-nums;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--ink);
     overflow-wrap: anywhere;
 
-    &--lime {
-      color: var(--accent);
-    }
-
-    &--ink {
-      color: var(--ink);
+    &--mono {
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
     }
   }
 
-  // 取得失敗時は dim の `--`
-  &--dead &__value {
+  &__bio {
+    margin: 0;
+    padding-left: 12px;
+    border-left: 2px solid var(--violet);
+  }
+
+  &__bio-text {
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    line-height: 1.7;
     color: var(--dim);
   }
-}
 
-.stat-wrap {
-  min-width: 0;
-}
+  // SELECT ボタン
+  &__go {
+    display: flex;
+    width: min(100%, 440px);
+    padding: 18px 28px;
+    font-size: 1.5rem;
+    transition-property: background-color, color, box-shadow, scale, transform;
 
-@media (min-width: 960px) {
-  .dossier__body {
-    grid-template-columns: 280px minmax(0, 1fr);
-    gap: 40px;
-  }
-}
+    &:hover {
+      transform: skewX(-6deg);
+    }
 
-// 幅 360px でも github.com/na2gumo ↗ が途中で折れないよう、ラベル列を詰める
-@media (max-width: 479px) {
-  .attrs__row {
-    grid-template-columns: 84px minmax(0, 1fr);
+    &:hover .select__tri {
+      translate: 6px 0;
+    }
 
-    dd {
-      padding-right: 0;
+    &:hover .select__key {
+      background: var(--bg);
     }
   }
 
-  .attrs__link {
-    font-size: 0.92rem;
-    white-space: nowrap;
+  // ▶（CSS の三角）
+  &__tri {
+    width: 0;
+    height: 0;
+    border-left: 0.6em solid currentcolor;
+    border-block: 0.38em solid transparent;
+  }
+
+  // キーキャップ風チップ
+  &__key {
+    display: grid;
+    place-items: center;
+    margin-left: auto;
+    padding: 4px 10px;
+    background: var(--bg);
+    box-shadow: inset 0 0 0 1px var(--ink);
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    letter-spacing: 0;
+    line-height: 1.5;
+    text-transform: none;
+  }
+}
+
+// ---------------- モーション（reduced-motion でないときだけ） ----------------
+@media (prefers-reduced-motion: no-preference) {
+  .select {
+    &__lines::before {
+      animation: select-flow 8s linear infinite;
+    }
+
+    &__emblem-ring {
+      animation: select-spin 14s linear infinite;
+    }
+
+    // RGB ずれのフラッシュは 0.25s の 1 回だけ
+    &__portrait:hover &__ghost--a {
+      animation: select-rgb-a 0.25s linear;
+    }
+
+    &__portrait:hover &__ghost--b {
+      animation: select-rgb-b 0.25s linear;
+    }
+
+    // 名前のグリッチはホバー中だけ 1.2 秒周期で繰り返す
+    &__name:hover {
+      animation: glitch-skew-hover 1.2s steps(1) infinite;
+    }
+
+    &__name:hover::before {
+      animation: glitch-pink-hover 1.2s steps(1) infinite;
+    }
+
+    &__name:hover::after {
+      animation: glitch-cyan-hover 1.2s steps(1) infinite;
+    }
+
+    // セグメントは reveal で左から 1 個ずつ点く
+    .js &__stat:not(.is-in) &__seg--on {
+      opacity: 0;
+      scale: 0.3;
+    }
+
+    .js &__stat.is-in &__seg--on {
+      animation: select-seg-on 0.35s var(--ease-pop) calc(300ms + var(--i, 0) * 70ms + var(--s, 0) * 40ms) backwards;
+    }
+  }
+}
+
+@keyframes select-flow {
+  to {
+    translate: 19.9px 9.3px;
+  }
+}
+
+@keyframes select-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+@keyframes select-rgb-a {
+  0%,
+  100% {
+    opacity: 0;
+    translate: 0 0;
+  }
+  40% {
+    opacity: 0.9;
+    translate: -4px 0;
+  }
+}
+
+@keyframes select-rgb-b {
+  0%,
+  100% {
+    opacity: 0;
+    translate: 0 0;
+  }
+  40% {
+    opacity: 0.9;
+    translate: 4px 0;
+  }
+}
+
+@keyframes select-seg-on {
+  from {
+    opacity: 0;
+    scale: 0.3;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .dossier__photo img,
-  .attrs__row,
-  .attrs__row dt,
-  .attrs__row dd,
-  .attrs__row::before,
-  .attrs__link {
-    transition: none;
+  .select {
+    &__art,
+    &__class,
+    &__tile,
+    &__tile dt,
+    &__go {
+      transition: none;
+    }
+
+    &__rec .dot {
+      animation: none;
+    }
+  }
+}
+
+// ---------------- モバイル（< 480px）: 1 行目にラベルと値、2 行目にバー ----------------
+@media (max-width: 479px) {
+  .select {
+    &__stat {
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 6px 12px;
+    }
+
+    &__stat-label {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    &__stat-value {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    &__bar {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+
+    &__go {
+      padding: 16px 20px;
+      font-size: 1.3rem;
+    }
+
+    &__emblem {
+      width: 56px;
+      height: 56px;
+    }
+
+    &__emblem-text {
+      font-size: 1rem;
+    }
+  }
+}
+
+// ---------------- デスクトップ ----------------
+@media (min-width: 960px) {
+  .select {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    // 縦書きの AGENT が左に出る分、見切れないよう左に余白を足す（ガターと画面の余りで足りない分だけ）
+    padding-left: max(0px, calc(var(--word) * 0.55 - var(--gutter) - max(0px, calc((100vw - 1280px) / 2))));
+
+    &__stage {
+      max-width: none;
+      margin-bottom: 18px;
+      padding-left: 18px;
+    }
+
+    &__halftone {
+      inset: 18px 18px -18px 0;
+      clip-path: polygon(0 0, 86% 0, 100% 50%, 86% 100%, 0 100%);
+    }
+
+    &__word {
+      display: block;
+      left: calc(18px - 0.55em);
+    }
+
+    &__portrait {
+      aspect-ratio: 4 / 5;
+      clip-path: polygon(0 0, 86% 0, 100% 50%, 86% 100%, 0 100%);
+    }
+
+    // 尖る手前に置く
+    &__emblem {
+      right: calc(14% + 14px);
+    }
   }
 }

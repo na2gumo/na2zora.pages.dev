@@ -245,46 +245,60 @@ props: `index: "01"`, `title: "AGENT FILE"`, `sub: "エージェント資料"`, 
 
 ### 3.2 CH.01 AGENT FILE（`#agent`、`src/components/agent-file/agent-file.tsx`）
 
-SectionHead: `01` / `AGENT FILE` / `エージェント資料`。
+**ゲームのエージェント選択画面**として作る。左に大きく斜めに切ったアバター、右に名前・クラス・実データのステータスバー・属性・SELECT ボタン。資料カード（VERIFIED スタンプ、バーコード、属性テーブル）はやめる。
 
-**資料カード** `.dossier`: ノッチパネル（`--notch: 24px`）、`--panel`、`padding: clamp(20px, 3vw, 40px)`、デスクトップは 2 カラム `280px 1fr`（gap 40px）、モバイル 1 カラム。カード全体が `data-reveal`（ワイプ）。
+SectionHead: `01` / `AGENT FILE` / `エージェント資料`（そのまま）。
 
-カード上辺に、タブのような見出しバー: 左 mono `FILE: AGENT_na2gumo.dat`、右 mono `CLEARANCE: PUBLIC`（ライム）。下に `--line`。
+**レイアウト**: デスクトップ（≥ 960px）は 2 カラム `minmax(0, 1.05fr) minmax(0, 1fr)`、`gap: clamp(32px, 4vw, 64px)`、`align-items: center`。モバイルは縦積み（ポートレート → 情報）。
 
-**左カラム**:
+#### 左: ポートレート `.select__portrait`
 
-- 証明写真: 正方形、ライムの 2px 枠、アバターを grayscale(1)。ホバーでカラー
-- **スタンプ** `VERIFIED`: 写真の右下に重ねる。Anton 1.6rem、オレンジの 3px 枠と文字、`rotate: -8deg`、`opacity: 0.92`、`mix-blend-mode: screen`。`data-reveal="slam"`（`--i: 6`、カードのワイプ後に叩きつけられる）
-- 写真の下: バーコード（高さ 36px、`repeating-linear-gradient(90deg, var(--ink) 0 2px, transparent 2px 4px, var(--ink) 4px 5px, transparent 5px 8px)` を不規則に見えるよう 2 本重ねる）、その下に mono `ID-na2gumo`
+- `aspect-ratio: 4 / 5`（モバイルは `1 / 1`）、`position: relative`
+- **形**: 右辺が矢印のように尖る `clip-path: polygon(0 0, 86% 0, 100% 50%, 86% 100%, 0 100%)`。モバイルは下辺が斜め `polygon(0 0, 100% 0, 100% 86%, 0 100%)`
+- **背面レイヤー**（ポートレートの外側・後ろ。クリップされない兄弟要素として置く）:
+  - バイオレットのハーフトーンの板（ドット 6px、`--violet`、opacity 0.5）を `translate: -18px 18px` でずらして重ねる
+  - 縦書きの巨大な `AGENT`: Anton 9rem、白抜き（`-webkit-text-stroke: 1.5px var(--accent)`）、`writing-mode: vertical-rl; rotate: 180deg`、ポートレートの左外側に半分はみ出す（`left: -0.55em`）。モバイルでは非表示
+- **中身**（クリップの内側）:
+  - アバター（`/avatar.avif`、フォールバックは GitHub）を `object-fit: cover`、**フルカラー**（デュオトーンにしない）
+  - 下 40% に `linear-gradient(transparent, var(--bg))` のフェード
+  - **集中線**: `repeating-linear-gradient(115deg, rgb(255 255 255 / 0.07) 0 1px, transparent 1px 22px)` を全面に、`background-position` ではなく疑似要素の `translate` で斜めに流す（8s linear infinite）
+  - 左上: mono `AGENT No.01`（ink）と、その下に `// SELECT`（accent）
+  - 右上（尖る手前）: **エンブレム**。直径 72px の円、1.5px の点線枠（accent）、中に Anton `N2Z`（ink 1.2rem）。枠だけ 14s で 1 回転（文字は回らない）
+  - 左下: mono `CAM: PROFILE` と `● REC`（violet、点滅）
+- **ホバー**: アバターが `scale: 1.04`（0.5s `--ease-out`）、同時に 0.25s だけ RGB ずれ（アバターの複製 2 枚を `mix-blend-mode: screen` で accent と violet に色付けして ±4px ずらし、opacity 0 → 0.6 → 0 のフラッシュ）。複製が重いなら `filter: drop-shadow(-4px 0 var(--accent)) drop-shadow(4px 0 var(--violet))` のフラッシュでもよい
+- **登場**: `data-reveal`（既定ワイプ）。続けて背面の `AGENT` が下から `data-reveal="up"`（`--i: 2`）
 
-**右カラム: 属性テーブル** `dl`（各行 `display: grid; grid-template-columns: 130px 1fr; padding: 14px 0; border-bottom: 1px solid var(--line)`）。行は `data-reveal="up"` で `--i` 1〜6。
+#### 右: 情報 `.select__info`
 
-| ラベル（`.mono-label`） | 値 |
-| --- | --- |
-| `NAME` | なつぐも **(na2gumo)** ※「なつぐも」を Dela Gothic One 1.3rem、括弧部分は mono dim |
-| `CLASS` | `Developer / Student` |
-| `HABITAT` | `VRChat` |
-| `LANGUAGE` | `日本語` |
-| `CURRENTLY` | `Minecraft にも手を付けたり` |
-| `LINK` | `github.com/na2gumo ↗`（シアン、ホバーでライム＋下線） |
+上から:
 
-- 行ホバー: 左に 3px のライム線が `scaleY(0→1)` で伸び、背景 `--panel-2`、ラベルがライムになる。`padding-left` が 0 → 12px に動く
+1. ヘッダー行: `.mono-label` `// SELECT AGENT`、右端に mono `01 / 01`。下に 1px `--line`
+2. **名前**: Anton `clamp(3.4rem, 7.5vw, 6.5rem)`、`line-height: 0.85`、ink、`NA2GUMO`。ヒーローと同じグリッチを**ホバー時だけ**（`data-text` と疑似要素。ヒーローのクラスを流用してよい）
+3. `なつぐも`: Dela Gothic One 1.4rem、accent 塗り × 黒文字の skew ステッカー
+4. **クラスバッジ**: `◆ DEVELOPER` `◆ STUDENT`。◆ は CSS の 8px 正方形を 45° 回転（accent）。Anton 1.2rem、`--line-strong` の枠、skew。`data-reveal="pop"` で時差
+5. **ステータスバー**（ゲームのパラメータ風。**全部実データ**。`data-reveal="up"`）: 3 行、各行 `grid-template-columns: 130px 1fr 56px; align-items: center; gap: 14px`
+   | ラベル（`.mono-label`） | 値 | セグメント（10 個） |
+   | --- | --- | --- |
+   | `PUSH / 7D` | `pushesThisWeek` | `min(値, 10)` 個点灯 |
+   | `EVENTS` | `items.length` | `round(値 / 12 * 10)` 個点灯 |
+   | `ACTIVE DAYS / 14D` | `pushesByDay` のうち 1 以上の日数 | `round(値 / 14 * 10)` 個点灯 |
+   - セグメント: 高さ 10px、`gap: 3px`、各 `skewX(-20deg)`。点灯は accent、消灯は `--line-strong` の枠だけ。最後に点灯しているセグメントだけ ink（先端が光る）
+   - reveal で左から 1 個ずつ点く（`--i` で 40ms ずつ。`opacity`/`scale` のアニメーション）
+   - 右端の値: Anton 1.8rem ink（tabular）
+   - 取得失敗時: 値は `--`（dim）、セグメントは全部消灯
+6. **属性タイル**: 2×2 グリッド（モバイルも 2×2）、`gap: 8px`。小さいノッチパネル（`--panel`、枠 `--line`、`--notch: 10px`）、`padding: 12px 14px`。上に `.mono-label`、下に値（`--font-sans` 1rem ink）
+   - `HABITAT` VRChat / `LANGUAGE` 日本語 / `CURRENTLY` Minecraft / `HANDLE` @na2gumo（mono）
+   - ホバー: 枠が accent、ラベルが accent
+7. **BIO**（1 行、`--font-sans` 0.95rem、dim、左に 2px violet 線、`padding-left: 12px`）:「VRChatに生息している学生です。最近はMinecraftにも手を付けたり。」
+8. **SELECT ボタン**: `.btn--primary` を大きく（`padding: 18px 28px`、Anton 1.5rem）、`SELECT ▶ GITHUB`（▶ は CSS の三角）。右端に小さく mono のキーキャップ風チップ `↵`（黒地・ink 枠）。`https://github.com/na2gumo` を新しいタブで。ホバーで ▶ が 6px 進み、ボタン全体が `skewX(-6deg)`
 
-**テーブルの下: BIO**（`margin-top: 28px`）
+#### 削除するもの
 
-- mono ラベル `// BIO`
-- 本文「VRChatに生息している学生です。最近はMinecraftにも手を付けたり。」（`--font-sans` 1.05rem）
-- 左にピンクの 3px 線、`padding-left: 18px`
+VERIFIED スタンプ、バーコード、`FILE: AGENT_na2gumo.dat` の見出しバー、属性テーブル、旧ステータス 3 枚（`LAST SIGNAL` は ACTIVITY LOG 側にあるので不要）。
 
-**その下: ステータス 3 枚**（横並び、モバイルは縦、`gap: 10px`、`margin-top: 28px`）。小さいノッチパネル `--panel-2`、`--notch: 10px`
+#### reduced-motion
 
-| ラベル | 値 |
-| --- | --- |
-| `PUSH / 7D` | `pushesThisWeek`（Anton 2.2rem、ライム） |
-| `EVENTS` | `items.length`（Anton 2.2rem、ink） |
-| `LAST SIGNAL` | 最新アイテムの `createdAt` を JST で `MM/DD HH:mm`（Anton 2.2rem、ink） |
-
-取得失敗時はどれも `--`（dim）。
+集中線・エンブレムの回転・REC 点滅・ホバーの RGB ずれは止める。セグメントは最初から点灯。
 
 ### 3.3 CH.02 LOADOUT（`#loadout`、`src/components/loadout/loadout.tsx`）
 
